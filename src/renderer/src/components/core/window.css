@@ -1,0 +1,11 @@
+.draggable {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-app-region: drag;
+}
+
+.draggable > * {
+    user-select: auto;
+    -webkit-user-select: auto;
+    -webkit-app-region: no-drag;
+}
