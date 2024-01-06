@@ -8,7 +8,6 @@ import { Separator } from "@renderer/components/ui/separator";
 import { ObjectKeys } from "@renderer/lib/utils";
 import { useConfig } from "@renderer/providers/config-provider";
 import { useState } from "react";
-import { ApplicationConfig } from "src/preload/shared_types";
 
 export default function SettingsView() {
     const { config, configLabels, updateConfig } = useConfig();

@@ -81,11 +81,6 @@ const FloatingToolbarPlugin = () => {
             if (centerX > rootBounds.right - ToolbarWidth / 2) {
                 centerX =
                     centerX + (rootBounds.right - ToolbarWidth / 2 - centerX);
-
-                console.log(
-                    centerX,
-                    rootBounds.right - ToolbarWidth / 2 - centerX,
-                );
             }
 
             SetPosition({ top: topY, left: centerX });
