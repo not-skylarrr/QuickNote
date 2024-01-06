@@ -44,7 +44,7 @@ class AppInstance {
     }: BrowserWindowConstructorOptions) {
         this.window = new BrowserWindow({
             show: false,
-            webPreferences: ObjectMerge(
+            webPreferences: ObjectMerge<Electron.WebPreferences>(
                 {
                     preload: join(__dirname, "../preload/index.js"),
                     sandbox: false,

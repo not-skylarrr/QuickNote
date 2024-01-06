@@ -1,4 +1,5 @@
 import Icon from "@renderer/components/ui/icon";
+import { InvokeIpc } from "@renderer/lib/ipc";
 import { ObjectMerge } from "@renderer/lib/utils";
 import { createContext, useContext, useEffect, useState } from "react";
 import { LuLoader2 } from "react-icons/lu";
@@ -22,14 +23,15 @@ const ConfigProvider = ({ children }: { children: React.ReactNode }) => {
 
     const UpdateConfig = async (changes: Partial<ApplicationConfig>) => {
         if (!Config) return;
-        await window.api.config.update(changes);
+        await InvokeIpc("config", "update", changes);
+
         SetConfig({ ...ObjectMerge(Config, changes) });
         return;
     };
 
     const FetchConfig = async () => {
-        const config = await window.api.config.get();
-        const labels = await window.api.config.getLabels();
+        const config = await InvokeIpc("config", "get");
+        const labels = await InvokeIpc("config", "getLabels");
         SetConfig(config);
         SetConfigLabels(labels);
     };

@@ -1,8 +1,8 @@
+import { BrowserWindow } from "electron";
 import AppInstance from "./classes/instance";
-import { UseIpcEndpoint } from "./lib/ipc";
-import { ConfigEndpoint } from "./services/config";
-import { NotesEndpoint } from "./services/notes";
-import { WindowEndpoint } from "./services/window";
+import { CreateIpcEndpointV2, RegisterEndpoint } from "./lib/ipc/v2";
+import { ConfigEndpointV2 } from "./services/config";
+import { NotesEndpointV2 } from "./services/notes";
 
 const instance = new AppInstance({
     window: {
@@ -15,6 +15,25 @@ const instance = new AppInstance({
     },
 });
 
-UseIpcEndpoint(ConfigEndpoint, { instance: instance });
-UseIpcEndpoint(NotesEndpoint);
-UseIpcEndpoint(WindowEndpoint, { instance: instance });
+export const WindowEndpoint = CreateIpcEndpointV2("window", {
+    minimize: () => {
+        BrowserWindow.getFocusedWindow()?.minimize();
+    },
+    maximize: () => {
+        const window = BrowserWindow.getFocusedWindow();
+        if (!window) return;
+
+        if (window.isMaximized()) {
+            window.unmaximize();
+        } else {
+            window.maximize();
+        }
+    },
+    close: () => {
+        instance.app.quit();
+    },
+});
+
+RegisterEndpoint(NotesEndpointV2);
+RegisterEndpoint(ConfigEndpointV2);
+RegisterEndpoint(WindowEndpoint);

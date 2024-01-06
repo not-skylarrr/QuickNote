@@ -1,3 +1,4 @@
+import { InvokeIpc } from "@renderer/lib/ipc";
 import { createContext, useContext, useEffect, useState } from "react";
 import { NoteManifest, PlaintextNote } from "src/preload/shared_types";
 
@@ -32,7 +33,7 @@ const NotesDataProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const CreateNote = async (title: string) => {
-        const note = await window.api.notes.create(title);
+        const note = await InvokeIpc("notes", "create", title);
         const noteArray = [...Notes, note];
         SetNotes(noteArray);
         return note;
@@ -49,7 +50,7 @@ const NotesDataProvider = ({ children }: { children: React.ReactNode }) => {
         if (note.type != "plaintext") return null;
 
         const updatedNote = { ...note, ...updates };
-        const success = await window.api.notes.update(noteID, updatedNote);
+        const success = await InvokeIpc("notes", "update", noteID, updatedNote);
 
         if (success) {
             const clonedNoteArray = [...Notes];
@@ -68,13 +69,13 @@ const NotesDataProvider = ({ children }: { children: React.ReactNode }) => {
         const clonedNotesArray = [...Notes];
         clonedNotesArray.splice(noteIndex, 1);
 
-        await window.api.notes.delete(noteID);
+        await InvokeIpc("notes", "delete", noteID);
 
         SetNotes(clonedNotesArray);
     };
 
     const FetchInitialData = async () => {
-        const notes = await window.api.notes.get();
+        const notes = await InvokeIpc("notes", "get");
         SetNotes(notes);
     };
 

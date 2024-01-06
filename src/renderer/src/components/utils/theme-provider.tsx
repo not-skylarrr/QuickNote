@@ -31,6 +31,7 @@ export function ThemeProvider({
     );
 
     useEffect(() => {
+        console.log(window.api);
         window.api.ipc.on("theme:update", (_, theme: "dark" | "light") => {
             setTheme(theme);
         });

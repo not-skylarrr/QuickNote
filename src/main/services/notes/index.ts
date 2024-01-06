@@ -1,14 +1,14 @@
 import { createId } from "@paralleldrive/cuid2";
-import { CreateIpcEndpoint } from "../../lib/ipc";
+import { NoteManifest } from "../../../preload/shared_types";
+import { CreateIpcEndpointV2 } from "../../lib/ipc/v2";
 import {
     DeleteFileFromStorageSpace,
     GetAllFilesFromStorageSpace,
     WriteFileToStorageSpace,
 } from "../../lib/storage";
 import { DEFAULT_EDITOR_STATE, NoteSchema } from "./consts";
-import { NoteManifest } from "../../../preload/shared_types";
 
-export const NotesEndpoint = CreateIpcEndpoint()("notes", {
+export const NotesEndpointV2 = CreateIpcEndpointV2("notes", {
     get: async (): Promise<NoteSchema[]> => {
         const noteFiles = GetAllFilesFromStorageSpace("notes");
         if (!noteFiles.success) return [];
@@ -24,7 +24,7 @@ export const NotesEndpoint = CreateIpcEndpoint()("notes", {
         return parsedNoteFiles;
     },
 
-    create: async (_, title: string) => {
+    create: async (title: string) => {
         const note: NoteSchema = {
             type: "plaintext",
             id: createId(),
@@ -46,11 +46,7 @@ export const NotesEndpoint = CreateIpcEndpoint()("notes", {
         return note;
     },
 
-    update: async (
-        _,
-        noteID: string,
-        newNote: NoteManifest,
-    ): Promise<boolean> => {
+    update: async (noteID: string, newNote: NoteManifest): Promise<boolean> => {
         const parsedNote = NoteSchema.safeParse(newNote);
         if (!parsedNote.success) return false;
 
@@ -63,7 +59,7 @@ export const NotesEndpoint = CreateIpcEndpoint()("notes", {
         return result.success;
     },
 
-    delete: async (_, noteID: string) => {
+    delete: async (noteID: string) => {
         return DeleteFileFromStorageSpace("notes", `${noteID}.qnote`);
     },
 });

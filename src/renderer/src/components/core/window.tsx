@@ -6,6 +6,7 @@ import {
 } from "react-icons/vsc";
 import Icon from "../ui/icon";
 import "./window.css";
+import { InvokeIpc } from "@renderer/lib/ipc";
 
 export default function AppWindow({
     children,
@@ -48,17 +49,17 @@ export const AppWindowContent = ({
 const WindowControlButtons = () => {
     return (
         <div className="ml-auto flex h-full flex-row items-center">
-            <ToolbarButton onClick={() => window.api.window.minimize()}>
+            <ToolbarButton onClick={() => InvokeIpc("window", "minimize")}>
                 <Icon icon={VscChromeMinimize} dimensions={18} />
             </ToolbarButton>
 
-            <ToolbarButton onClick={() => window.api.window.maximize()}>
+            <ToolbarButton onClick={() => InvokeIpc("window", "maximize")}>
                 <Icon icon={VscChromeMaximize} dimensions={18} />
             </ToolbarButton>
 
             <ToolbarButton
                 className="hover:bg-destructive"
-                onClick={() => window.api.window.close()}
+                onClick={() => InvokeIpc("window", "close")}
             >
                 <Icon icon={VscChromeClose} dimensions={18} />
             </ToolbarButton>

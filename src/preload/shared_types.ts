@@ -29,3 +29,4 @@ export type {
     ApplicationConfig,
     ApplicationConfigLabels,
 } from "../main/lib/config/const";
+export type { IpcRouter } from "../main/services/router";
