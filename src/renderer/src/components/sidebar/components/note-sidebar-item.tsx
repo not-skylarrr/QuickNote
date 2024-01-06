@@ -103,13 +103,12 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
 
     const HandleNoteLinkClick = () => {
         // If note is in single editor mode, replace displayed note
-        if (openedNoteIds.length == 1) {
+        if (openedNoteIds.length <= 1) {
             navigate(GetNoteEditorLocationString(note.id));
             return;
         }
 
         const [leftNote, rightNote] = openedNoteIds;
-        console.log(leftNote, rightNote, focusedNote);
 
         if (focusedNote == leftNote) {
             splitNoteLeft(note.id);
