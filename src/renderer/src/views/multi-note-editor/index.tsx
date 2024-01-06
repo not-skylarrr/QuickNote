@@ -8,6 +8,7 @@ import { useNotes } from "@renderer/providers/notes-provider";
 import { useEffect, useState } from "react";
 import { NoteManifest } from "src/preload/shared_types";
 import EditorNoteSplitPanel from "./components/note-split-panel";
+import EditorSplitDndLayer from "./components/dnd-split-overlay";
 
 export default function MultiNoteEditor() {
     const { notes } = useNotes();
@@ -29,10 +30,10 @@ export default function MultiNoteEditor() {
     }, [focusedNote]);
 
     return (
-        <>
+        <div className="relative z-10 h-full w-full">
             {OpenedNotes.length == 1 && OpenedNotes[0].type == "plaintext" && (
                 <div className="mb-4 flex flex-col px-8">
-                    <div className="mb-2 flex h-10 shrink-0 flex-row items-center">
+                    <div className="pointer-events-none mb-2 flex h-10 shrink-0 flex-row items-center">
                         <span className="text-sm text-muted-foreground">
                             {OpenedNotes[0].title}
                         </span>
@@ -57,6 +58,8 @@ export default function MultiNoteEditor() {
                     />
                 </ResizablePanelGroup>
             )}
-        </>
+
+            <EditorSplitDndLayer />
+        </div>
     );
 }

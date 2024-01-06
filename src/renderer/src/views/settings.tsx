@@ -7,9 +7,13 @@ import { Input } from "@renderer/components/ui/input";
 import { Separator } from "@renderer/components/ui/separator";
 import { ObjectKeys } from "@renderer/lib/utils";
 import { useConfig } from "@renderer/providers/config-provider";
+import { useState } from "react";
+import { ApplicationConfig } from "src/preload/shared_types";
 
 export default function SettingsView() {
     const { config, configLabels, updateConfig } = useConfig();
+
+    const [Query, SetQuery] = useState("");
 
     const GetSettingGroups = () => {
         const groups: string[] = [];
@@ -34,7 +38,12 @@ export default function SettingsView() {
                 <span className="text-3xl font-semibold">
                     Application Settings
                 </span>
-                <Input className="w-[300px]" placeholder="Search Settings" />
+                <Input
+                    value={Query}
+                    onChange={(ev) => SetQuery(ev.target.value)}
+                    className="w-[300px]"
+                    placeholder="Search Settings"
+                />
             </div>
 
             {GetSettingGroups().map((configGroup) => {
@@ -51,6 +60,16 @@ export default function SettingsView() {
                                 const settingLabelData = configLabels[setting];
 
                                 if (!setting.startsWith(`${configGroup}.`))
+                                    return null;
+
+                                const queryMatchesKey = setting
+                                    .toLowerCase()
+                                    .includes(Query.toLowerCase());
+                                const queryMatchesLabel = settingLabelData.title
+                                    .toLowerCase()
+                                    .includes(Query.toLowerCase());
+
+                                if (!queryMatchesKey && !queryMatchesLabel)
                                     return null;
 
                                 return (
