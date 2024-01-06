@@ -11,6 +11,9 @@ import {
 import { Emoji } from "@renderer/components/ui/emoji/elem";
 import { EmojiSelector } from "@renderer/components/ui/emoji/selector";
 import Icon from "@renderer/components/ui/icon";
+import { GetNoteEditorLocationString } from "@renderer/lib/navigation";
+import { cn } from "@renderer/lib/utils";
+import { useEditorNavigation } from "@renderer/providers/editor-navigation";
 import { useNotes } from "@renderer/providers/notes-provider";
 import { createRef, useState } from "react";
 import {
@@ -19,10 +22,12 @@ import {
     LuPin,
     LuPinOff,
     LuSmilePlus,
+    LuSplitSquareHorizontal,
     LuTextCursorInput,
     LuTrash,
+    LuX,
 } from "react-icons/lu";
-import { Link, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { NoteManifest, PlaintextNote } from "src/preload/shared_types";
 
 type NoteSidebarItemProps = {
@@ -31,10 +36,17 @@ type NoteSidebarItemProps = {
 
 const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
     const inputRef = createRef<HTMLInputElement>();
-    const ItemHref = `/notes/${note.id}`;
 
-    const { pathname } = useLocation();
+    const navigate = useNavigate();
     const { updatePlaintextNote, deleteNote } = useNotes();
+    const {
+        openedNoteIds,
+        focusedNote,
+        isNoteOpen,
+        splitNoteLeft,
+        splitNoteRight,
+        closeNote,
+    } = useEditorNavigation();
 
     const [Editable, SetEditble] = useState(false);
     const [NoteTitle, SetNoteTitle] = useState(note.title);
@@ -89,12 +101,41 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
         UpdateNoteData({ icon: icon });
     };
 
+    const HandleNoteLinkClick = () => {
+        // If note is in single editor mode, replace displayed note
+        if (openedNoteIds.length == 1) {
+            navigate(GetNoteEditorLocationString(note.id));
+            return;
+        }
+
+        const [leftNote, rightNote] = openedNoteIds;
+        console.log(leftNote, rightNote, focusedNote);
+
+        if (focusedNote == leftNote) {
+            splitNoteLeft(note.id);
+            return;
+        }
+
+        if (focusedNote == rightNote) {
+            splitNoteRight(note.id);
+            return;
+        }
+    };
+
+    const HandleNoteClose = (ev: React.MouseEvent) => {
+        if (!isNoteOpen(note.id)) return;
+
+        ev.preventDefault();
+
+        closeNote(note.id);
+    };
+
     return (
         <ContextMenu>
             <ContextMenuTrigger asChild>
                 {Editable ? (
                     <div
-                        className="flex w-full cursor-pointer flex-row items-center gap-2 rounded px-2.5 py-1.5 text-[.84rem] font-normal transition-colors duration-100 hover:bg-accent data-[active=true]:bg-accent [&>*]:shrink-0"
+                        className="flex w-full cursor-pointer flex-row items-center gap-2 rounded px-2.5 py-1.5 text-sm font-normal transition-colors duration-100 hover:bg-accent data-[active=true]:bg-accent [&>*]:shrink-0"
                         data-active={true}
                     >
                         {note.icon ? (
@@ -112,10 +153,10 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
                         />
                     </div>
                 ) : (
-                    <Link
-                        to={ItemHref}
-                        className="flex w-full cursor-pointer flex-row items-center gap-2 rounded px-2.5 py-1.5 text-[.84rem] font-normal transition-colors duration-100 hover:bg-accent data-[active=true]:bg-accent [&>*]:shrink-0"
-                        data-active={pathname == ItemHref}
+                    <button
+                        className="group flex w-full cursor-pointer flex-row items-center gap-2 rounded px-2.5 py-1.5 text-sm font-normal transition-colors duration-100 hover:bg-accent data-[active=true]:bg-accent [&>*]:shrink-0"
+                        data-active={isNoteOpen(note.id)}
+                        onClick={HandleNoteLinkClick}
                     >
                         {NoteIcon ? (
                             <Emoji code={NoteIcon} dimensions={18} />
@@ -128,12 +169,28 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
 
                         {note.pinned && (
                             <Icon
-                                className="ml-auto fill-muted-foreground stroke-muted-foreground"
+                                className={cn(
+                                    "ml-auto fill-muted-foreground stroke-muted-foreground",
+                                    isNoteOpen(note.id) && "group-hover:hidden",
+                                )}
                                 icon={LuPin}
                                 dimensions={12}
                             />
                         )}
-                    </Link>
+
+                        {isNoteOpen(note.id) && (
+                            <button
+                                className="ml-auto hidden group-hover:flex"
+                                onClick={HandleNoteClose}
+                            >
+                                <Icon
+                                    className="text-muted-foreground transition-colors duration-150 hover:text-foreground"
+                                    icon={LuX}
+                                    dimensions={14}
+                                />
+                            </button>
+                        )}
+                    </button>
                 )}
             </ContextMenuTrigger>
             <ContextMenuContent className="w-[200px]">
@@ -141,18 +198,12 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
                     <Icon icon={LuLink} /> Open Note
                 </ContextMenuItem>
 
-                <ContextMenuItem
-                    onSelect={() => UpdateNoteData({ pinned: !note.pinned })}
-                >
-                    {note.pinned ? (
-                        <>
-                            <Icon icon={LuPinOff} /> Unpin Note
-                        </>
-                    ) : (
-                        <>
-                            <Icon icon={LuPin} /> Pin Note
-                        </>
-                    )}
+                <ContextMenuItem onSelect={() => splitNoteLeft(note.id)}>
+                    <Icon icon={LuSplitSquareHorizontal} /> Split Left
+                </ContextMenuItem>
+
+                <ContextMenuItem onSelect={() => splitNoteRight(note.id)}>
+                    <Icon icon={LuSplitSquareHorizontal} /> Split Right
                 </ContextMenuItem>
 
                 <ContextMenuSeparator />
@@ -176,6 +227,22 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
                         />
                     </ContextMenuSubContent>
                 </ContextMenuSub>
+
+                <ContextMenuSeparator />
+
+                <ContextMenuItem
+                    onSelect={() => UpdateNoteData({ pinned: !note.pinned })}
+                >
+                    {note.pinned ? (
+                        <>
+                            <Icon icon={LuPinOff} /> Unpin Note
+                        </>
+                    ) : (
+                        <>
+                            <Icon icon={LuPin} /> Pin Note
+                        </>
+                    )}
+                </ContextMenuItem>
 
                 <ContextMenuSeparator />
 

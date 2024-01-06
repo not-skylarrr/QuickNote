@@ -51,9 +51,10 @@ function onError(error) {
 type NoteEditorProps = {
     initialState?: string | Record<string, any>;
     onChange: (state: Record<string, any>) => void;
+    onFocus?: () => void;
 };
 
-const TextEditor = ({ onChange, initialState }: NoteEditorProps) => {
+const TextEditor = ({ onChange, onFocus, initialState }: NoteEditorProps) => {
     const initialConfig = GenerateEditorConfig({
         namespace: "Note Editor",
         editable: true,
@@ -79,11 +80,18 @@ const TextEditor = ({ onChange, initialState }: NoteEditorProps) => {
         onChange(state);
     };
 
+    const HandleEditorFocus = () => {
+        if (!onFocus) return;
+        onFocus();
+    };
+
     return (
         <LexicalComposer initialConfig={initialConfig}>
             <div className="relative h-full w-full p-0">
                 <RichTextPlugin
-                    contentEditable={<EditorContent />}
+                    contentEditable={
+                        <EditorContent onFocus={() => HandleEditorFocus()} />
+                    }
                     placeholder={<EditorContentPlaceholder />}
                     ErrorBoundary={LexicalErrorBoundary}
                 />

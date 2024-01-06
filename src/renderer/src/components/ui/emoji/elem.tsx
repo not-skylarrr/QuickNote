@@ -1,11 +1,7 @@
 import { useEffect } from "react";
 import twemoji from "twemoji";
 import * as spriteSheets from "./sprites";
-
-type EmojiProps = {
-    code: string;
-    dimensions?: number;
-};
+import { cn } from "@renderer/lib/utils";
 
 const EmojiSvgWrapperID = "twemoji-svg";
 
@@ -66,13 +62,22 @@ export const EmojiProvider = () => {
     return null;
 };
 
-export const Emoji = ({ code, dimensions }: EmojiProps) => {
+type EmojiProps = {
+    code: string;
+    className?: string;
+    dimensions?: number;
+};
+
+export const Emoji = ({ code, className, dimensions }: EmojiProps) => {
     const emojiKey = GetTwemojiCode(code);
 
     return (
         <svg
             data-code={emojiKey}
-            className="mx-0 my-auto flex shrink-0 content-start items-center justify-center self-start overflow-hidden"
+            className={cn(
+                "mx-0 my-auto flex shrink-0 content-start items-center justify-center self-start overflow-hidden",
+                className,
+            )}
             style={{
                 height: `${dimensions}px`,
                 width: `${dimensions}px`,

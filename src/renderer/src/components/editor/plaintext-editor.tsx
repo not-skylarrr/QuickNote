@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { PlaintextNote } from "src/preload/shared_types";
 import TextEditor from "./lexical";
 import { DecircularizeObject } from "./utils";
+import { useEditorNavigation } from "@renderer/providers/editor-navigation";
 
 type PlaintextEditorProps = {
     note: PlaintextNote;
@@ -11,6 +12,9 @@ type PlaintextEditorProps = {
 
 const PlaintextEditor = ({ note }: PlaintextEditorProps) => {
     const { updatePlaintextNote } = useNotes();
+    const { focusedNote, setNoteFocused } = useEditorNavigation();
+
+    const NoteFocused = focusedNote == note.id;
 
     const [Content, SetContent] = useState(note.content);
 
@@ -19,6 +23,8 @@ const PlaintextEditor = ({ note }: PlaintextEditorProps) => {
     };
 
     const SaveNoteToDisk = async () => {
+        if (!NoteFocused) return;
+
         const updatedNote = await updatePlaintextNote(note.id, {
             content: DecircularizeObject(Content),
         });
@@ -27,7 +33,7 @@ const PlaintextEditor = ({ note }: PlaintextEditorProps) => {
             return toast.error("Failed to save note");
         }
 
-        return toast.success("Note saved successfully");
+        return toast.success(`Saved "${note.title}" successfully`);
     };
 
     const HandleDocumentKeyDown = (ev: KeyboardEvent) => {
@@ -43,12 +49,13 @@ const PlaintextEditor = ({ note }: PlaintextEditorProps) => {
         return () => {
             document.removeEventListener("keydown", HandleDocumentKeyDown);
         };
-    }, [Content]);
+    }, [Content, NoteFocused]);
 
     return (
         <TextEditor
             initialState={note.content}
             onChange={HandleEditorStateChange}
+            onFocus={() => setNoteFocused(note.id)}
         />
     );
 };

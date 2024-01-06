@@ -6,7 +6,7 @@ import { EmojiProvider } from "./components/ui/emoji/elem";
 import { Toaster } from "./components/ui/sonner";
 import { StartupManager } from "./components/utils/startup";
 import ApplicationProviders from "./providers";
-import NoteEditorView from "./views/note-editor";
+import MultiNoteEditor from "./views/multi-note-editor";
 import SettingsView from "./views/settings";
 
 const FullscreenElement = () => {
@@ -29,15 +29,12 @@ const AppLayoutElement = () => {
 function App(): JSX.Element {
     return (
         <ApplicationProviders>
-            <MemoryRouter>
+            <MemoryRouter initialEntries={["/editor"]}>
                 <Routes>
                     {/* Place all routes with sidebar | content layout */}
                     <Route path="/" element={<AppLayoutElement />}>
                         <Route index element={<></>} />
-                        <Route
-                            path="/notes/:noteID"
-                            element={<NoteEditorView />}
-                        />
+                        <Route path="/editor" element={<MultiNoteEditor />} />
                         <Route path="/settings" element={<SettingsView />} />
                     </Route>
 

@@ -1,3 +1,4 @@
+import { GetNoteEditorLocationString } from "@renderer/lib/navigation";
 import { useConfig } from "@renderer/providers/config-provider";
 import { useNotes } from "@renderer/providers/notes-provider";
 import { useEffect, useState } from "react";
@@ -17,7 +18,7 @@ export const StartupManager = () => {
         const note = notes.find((n) => n.id == recentNoteID);
         if (!note) return;
 
-        navigate(`/notes/${recentNoteID}`);
+        navigate(GetNoteEditorLocationString(recentNoteID));
         SetRedirectOccurred(true);
     };
 
@@ -27,7 +28,16 @@ export const StartupManager = () => {
 
         if (config["editor.openOnStartup"] == "recent") {
             NavigateToRecent();
+            return;
         }
+
+        let timeout = setTimeout(() => {
+            SetRedirectOccurred(true);
+        }, 1000);
+
+        return () => {
+            clearTimeout(timeout);
+        };
     }, [RedirectOccurred, config, notes]);
 
     return null;

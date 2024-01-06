@@ -1,8 +1,14 @@
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 
-const EditorContent = () => {
+const EditorContent = ({
+    className,
+    ...props
+}: React.HTMLAttributes<HTMLDivElement>) => {
     return (
-        <ContentEditable className="h-full w-full min-w-0 border-none text-foreground outline-none" />
+        <ContentEditable
+            className="h-full w-full min-w-0 border-none text-foreground outline-none"
+            {...props}
+        />
     );
 };
 
