@@ -29,7 +29,7 @@ const AppLayoutElement = () => {
 function App(): JSX.Element {
     return (
         <ApplicationProviders>
-            <MemoryRouter initialEntries={["/editor"]}>
+            <MemoryRouter>
                 <Routes>
                     {/* Place all routes with sidebar | content layout */}
                     <Route path="/" element={<AppLayoutElement />}>

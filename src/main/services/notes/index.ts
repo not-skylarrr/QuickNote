@@ -53,7 +53,7 @@ export const NotesEndpointV2 = CreateIpcEndpointV2("notes", {
         const result = await WriteFileToStorageSpace(
             "notes",
             `${noteID}.qnote`,
-            JSON.stringify(parsedNote.data),
+            JSON.stringify(parsedNote.data, null, 4),
         );
 
         return result.success;

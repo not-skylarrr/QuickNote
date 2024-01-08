@@ -14,11 +14,13 @@ import Icon from "@renderer/components/ui/icon";
 import { GetNoteEditorLocationString } from "@renderer/lib/navigation";
 import { cn } from "@renderer/lib/utils";
 import { useEditorNavigation } from "@renderer/providers/editor-navigation";
+import { useEncryptionDialog } from "@renderer/providers/encryption-dialog";
 import { useNotes } from "@renderer/providers/notes-provider";
 import { createRef, useState } from "react";
 import {
     LuFile,
     LuLink,
+    LuLock,
     LuPin,
     LuPinOff,
     LuSmilePlus,
@@ -39,7 +41,7 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
     const inputRef = createRef<HTMLInputElement>();
 
     const navigate = useNavigate();
-    const { updatePlaintextNote, deleteNote } = useNotes();
+    const { updatePlaintextNote, updateEncryptedNote, deleteNote } = useNotes();
     const {
         openedNoteIds,
         focusedNote,
@@ -48,6 +50,7 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
         splitNoteRight,
         closeNote,
     } = useEditorNavigation();
+    const { requestNoteLock } = useEncryptionDialog();
 
     const [Editable, SetEditble] = useState(false);
     const [NoteTitle, SetNoteTitle] = useState(note.title);
@@ -125,6 +128,19 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
         }
     };
 
+    const HandleNoteLock = () => {
+        if (note.type != "plaintext") return;
+        requestNoteLock(note, (response) => {
+            if (!response.success) return;
+
+            updateEncryptedNote(note.id, {
+                type: "encrypted",
+                content: response.data.content,
+                encryptionKeyHash: response.data.encryptionKeyHash,
+            });
+        });
+    };
+
     const HandleNoteClose = (ev: React.MouseEvent) => {
         if (!isNoteOpen(note.id)) return;
 
@@ -165,6 +181,7 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
                                 "hover:bg-accent data-[active=true]:bg-accent [&>*]:shrink-0",
                             )}
                             data-active={isNoteOpen(note.id)}
+                            data-note-id={note.id}
                             onClick={HandleNoteLinkClick}
                         >
                             {NoteIcon ? (
@@ -176,30 +193,44 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
                                 {NoteTitle}
                             </span>
 
-                            {note.pinned && (
-                                <Icon
-                                    className={cn(
-                                        "ml-auto fill-muted-foreground stroke-muted-foreground",
-                                        isNoteOpen(note.id) &&
-                                            "group-hover:hidden",
-                                    )}
-                                    icon={LuPin}
-                                    dimensions={12}
-                                />
-                            )}
-
-                            {isNoteOpen(note.id) && (
-                                <button
-                                    className="ml-auto hidden group-hover:flex"
-                                    onClick={HandleNoteClose}
-                                >
+                            <div className="ml-auto flex flex-row gap-1">
+                                {note.pinned && (
                                     <Icon
-                                        className="text-muted-foreground transition-colors duration-150 hover:text-foreground"
-                                        icon={LuX}
-                                        dimensions={14}
+                                        className={cn(
+                                            "fill-muted-foreground stroke-muted-foreground",
+                                            isNoteOpen(note.id) &&
+                                                "group-hover:hidden",
+                                        )}
+                                        icon={LuPin}
+                                        dimensions={12}
                                     />
-                                </button>
-                            )}
+                                )}
+
+                                {note.type == "encrypted" && (
+                                    <Icon
+                                        className={cn(
+                                            "stroke-muted-foreground stroke-[3px]",
+                                            isNoteOpen(note.id) &&
+                                                "group-hover:hidden",
+                                        )}
+                                        icon={LuLock}
+                                        dimensions={12}
+                                    />
+                                )}
+
+                                {isNoteOpen(note.id) && (
+                                    <button
+                                        className="hidden group-hover:flex"
+                                        onClick={HandleNoteClose}
+                                    >
+                                        <Icon
+                                            className="text-muted-foreground transition-colors duration-150 hover:text-foreground"
+                                            icon={LuX}
+                                            dimensions={14}
+                                        />
+                                    </button>
+                                )}
+                            </div>
                         </button>
                     )}
                 </ContextMenuTrigger>
@@ -254,6 +285,10 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
                                 <Icon icon={LuPin} /> Pin Note
                             </>
                         )}
+                    </ContextMenuItem>
+
+                    <ContextMenuItem onSelect={HandleNoteLock}>
+                        <Icon icon={LuLock} /> Lock Note
                     </ContextMenuItem>
 
                     <ContextMenuSeparator />

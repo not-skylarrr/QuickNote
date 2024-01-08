@@ -3,6 +3,8 @@ import ConfigProvider from "./config-provider";
 import { DndProvider } from "./dnd-provider";
 import EditorNavigationProvider from "./editor-navigation";
 import NotesDataProvider from "./notes-provider";
+import ConfirmationDialogProvider from "./confirmation-dialog";
+import EncryptionDialogProvider from "./encryption-dialog";
 
 export default function ApplicationProviders({
     children,
@@ -15,7 +17,11 @@ export default function ApplicationProviders({
                 <ConfigProvider>
                     <NotesDataProvider>
                         <EditorNavigationProvider>
-                            {children}
+                            <EncryptionDialogProvider>
+                                <ConfirmationDialogProvider>
+                                    {children}
+                                </ConfirmationDialogProvider>
+                            </EncryptionDialogProvider>
                         </EditorNavigationProvider>
                     </NotesDataProvider>
                 </ConfigProvider>

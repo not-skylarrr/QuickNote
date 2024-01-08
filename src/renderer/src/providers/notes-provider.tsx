@@ -1,6 +1,10 @@
 import { InvokeIpc } from "@renderer/lib/ipc";
 import { createContext, useContext, useEffect, useState } from "react";
-import { NoteManifest, PlaintextNote } from "src/preload/shared_types";
+import {
+    EncryptedNote,
+    NoteManifest,
+    PlaintextNote,
+} from "src/preload/shared_types";
 
 type DataProviderContext = {
     notes: NoteManifest[];
@@ -9,6 +13,10 @@ type DataProviderContext = {
         noteID: string,
         updates: Partial<PlaintextNote>,
     ) => Promise<PlaintextNote | null>;
+    updateEncryptedNote: (
+        noteID: string,
+        updates: Partial<EncryptedNote>,
+    ) => Promise<EncryptedNote | null>;
     deleteNote: (noteID: string) => Promise<void>;
 };
 
@@ -47,9 +55,34 @@ const NotesDataProvider = ({ children }: { children: React.ReactNode }) => {
         if (noteIndex == -1) return null;
 
         const note = Object.assign({}, Notes[noteIndex]);
-        if (note.type != "plaintext") return null;
+        if (note.type != "plaintext" || updates.type == "plaintext")
+            return null;
 
         const updatedNote = { ...note, ...updates };
+        const success = await InvokeIpc("notes", "update", noteID, updatedNote);
+
+        if (success) {
+            const clonedNoteArray = [...Notes];
+            clonedNoteArray.splice(noteIndex, 1, updatedNote);
+            SetNotes(clonedNoteArray);
+            return updatedNote;
+        }
+
+        return null;
+    };
+
+    const UpdateEncryptedNote = async (
+        noteID: string,
+        updates: Partial<EncryptedNote>,
+    ) => {
+        const noteIndex = Notes.findIndex((n) => n.id == noteID);
+        if (noteIndex == -1) return null;
+
+        const note = Object.assign({}, Notes[noteIndex]) as NoteManifest;
+        if (note.type != "encrypted" && updates.type != "encrypted")
+            return null;
+
+        const updatedNote = { ...note, ...updates } as EncryptedNote;
         const success = await InvokeIpc("notes", "update", noteID, updatedNote);
 
         if (success) {
@@ -89,6 +122,7 @@ const NotesDataProvider = ({ children }: { children: React.ReactNode }) => {
                 notes: Notes,
                 createNote: CreateNote,
                 updatePlaintextNote: UpdatePlaintextNote,
+                updateEncryptedNote: UpdateEncryptedNote,
                 deleteNote: DeleteNote,
             }}
         >

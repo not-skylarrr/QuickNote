@@ -9,12 +9,15 @@ import { useEffect, useState } from "react";
 import { NoteManifest } from "src/preload/shared_types";
 import EditorNoteSplitPanel from "./components/note-split-panel";
 import EditorSplitDndLayer from "./components/dnd-split-overlay";
+import EncryptedEditor from "@renderer/components/editor/encrypted-editor";
 
 export default function MultiNoteEditor() {
     const { notes } = useNotes();
     const { openedNoteIds, focusedNote } = useEditorNavigation();
 
     const [OpenedNotes, SetOpenedNotes] = useState<NoteManifest[]>([]);
+
+    const PrimaryNote = OpenedNotes[0];
 
     useEffect(() => {
         const openedNotes = openedNoteIds
@@ -31,17 +34,26 @@ export default function MultiNoteEditor() {
 
     return (
         <div className="relative z-10 h-full w-full">
-            {OpenedNotes.length == 1 && OpenedNotes[0].type == "plaintext" && (
+            {OpenedNotes.length == 1 && (
                 <div className="mb-4 flex flex-col px-8">
                     <div className="pointer-events-none mb-2 flex h-10 shrink-0 flex-row items-center">
                         <span className="text-sm text-muted-foreground">
                             {OpenedNotes[0].title}
                         </span>
                     </div>
-                    <PlaintextEditor
-                        key={OpenedNotes[0].id}
-                        note={OpenedNotes[0]}
-                    />
+                    {PrimaryNote.type == "plaintext" && (
+                        <PlaintextEditor
+                            key={PrimaryNote.id}
+                            note={PrimaryNote}
+                        />
+                    )}
+
+                    {PrimaryNote.type == "encrypted" && (
+                        <EncryptedEditor
+                            key={PrimaryNote.id}
+                            note={PrimaryNote}
+                        />
+                    )}
                 </div>
             )}
 

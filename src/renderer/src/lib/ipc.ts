@@ -24,7 +24,7 @@ export const InvokeIpc = <
     // @ts-ignore
 ): ReturnType<F> => {
     return window.api.ipc.invoke(
-        `${group}:${endpoint.toString()}`,
+        `${String(group)}:${endpoint.toString()}`,
         ...args,
         // @ts-ignore
     ) as ReturnType<F>;
