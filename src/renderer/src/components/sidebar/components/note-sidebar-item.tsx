@@ -56,9 +56,15 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
     const [NoteTitle, SetNoteTitle] = useState(note.title);
     const [NoteIcon, SetNoteIcon] = useState(note.icon);
 
-    const UpdateNoteData = (updates: Partial<PlaintextNote>) => {
+    const UpdateNoteData = (
+        updates: Omit<Partial<PlaintextNote>, "type" | "content">,
+    ) => {
         if (note.type == "plaintext") {
             updatePlaintextNote(note.id, updates);
+        }
+
+        if (note.type == "encrypted") {
+            updateEncryptedNote(note.id, updates);
         }
     };
 
@@ -130,6 +136,7 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
 
     const HandleNoteLock = () => {
         if (note.type != "plaintext") return;
+
         requestNoteLock(note, (response) => {
             if (!response.success) return;
 
@@ -193,19 +200,7 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
                                 {NoteTitle}
                             </span>
 
-                            <div className="ml-auto flex flex-row gap-1">
-                                {note.pinned && (
-                                    <Icon
-                                        className={cn(
-                                            "fill-muted-foreground stroke-muted-foreground",
-                                            isNoteOpen(note.id) &&
-                                                "group-hover:hidden",
-                                        )}
-                                        icon={LuPin}
-                                        dimensions={12}
-                                    />
-                                )}
-
+                            <div className="ml-auto flex flex-row gap-2">
                                 {note.type == "encrypted" && (
                                     <Icon
                                         className={cn(
@@ -214,6 +209,18 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
                                                 "group-hover:hidden",
                                         )}
                                         icon={LuLock}
+                                        dimensions={12}
+                                    />
+                                )}
+
+                                {note.pinned && (
+                                    <Icon
+                                        className={cn(
+                                            "fill-muted-foreground stroke-muted-foreground",
+                                            isNoteOpen(note.id) &&
+                                                "group-hover:hidden",
+                                        )}
+                                        icon={LuPin}
                                         dimensions={12}
                                     />
                                 )}

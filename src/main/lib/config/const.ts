@@ -10,7 +10,7 @@ const ApplicationConfigSchema = z.object({
     "editor.autosaveDelay": z.number().optional(),
     "editor.openOnStartup": z.union([z.literal("recent"), z.literal("new")]).optional(),
     "encryption.cacheNotePasswords": z.boolean().optional(),
-    "encryption.passwordCacheSeconds": z.number().min(0) 
+    "encryption.passwordCacheSeconds": z.number().min(0).optional() 
 });
 
 type UserApplicationConfig = z.infer<typeof ApplicationConfigSchema>;
