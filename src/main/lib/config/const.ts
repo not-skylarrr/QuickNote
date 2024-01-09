@@ -9,6 +9,8 @@ const ApplicationConfigSchema = z.object({
     "editor.autosave": z.boolean().optional(),
     "editor.autosaveDelay": z.number().optional(),
     "editor.openOnStartup": z.union([z.literal("recent"), z.literal("new")]).optional(),
+    "encryption.cacheNotePasswords": z.boolean().optional(),
+    "encryption.passwordCacheSeconds": z.number().min(0).optional() 
 });
 
 type UserApplicationConfig = z.infer<typeof ApplicationConfigSchema>;
@@ -31,6 +33,8 @@ const BaseApplicationConfig: ApplicationConfig = {
     "editor.autosave": true,
     "editor.autosaveDelay": 3000,
     "editor.openOnStartup": "new",
+    "encryption.cacheNotePasswords": false,
+    "encryption.passwordCacheSeconds": 300,
 };
 
 const ApplicationConfigLabels: ApplicationConfigLabels = {
@@ -72,6 +76,24 @@ const ApplicationConfigLabels: ApplicationConfigLabels = {
             { label: "New Note", value: "new" },
             { label: "Recent Note", value: "recent" },
         ],
+    },
+    "encryption.cacheNotePasswords": {
+        title: "Cache Note Passwords",
+        description:
+            "Stores note passwords in memory to prevent having to re-enter a password when notes are reopened within a certain timeframe.",
+        defaultValue: true,
+        inputType: "select",
+        inputOptions: [
+            { label: "Enabled", value: true },
+            { label: "Disabled", value: false },
+        ],
+    },
+    "encryption.passwordCacheSeconds": {
+        title: "Password Cache Time",
+        description:
+            "The amount of seconds a password is cached before it will need to be re-entered to open a note.",
+        defaultValue: 300,
+        inputType: "number",
     },
 };
 
