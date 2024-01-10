@@ -5,7 +5,7 @@ import {
     ApplicationConfigSchema,
     BaseApplicationConfig,
     UserApplicationConfig,
-} from "./const";
+} from "./consts";
 
 export const GetApplicationConfig = (userConfig: UserApplicationConfig) => {
     const mergedSettings = ObjectMerge<ApplicationConfig>(

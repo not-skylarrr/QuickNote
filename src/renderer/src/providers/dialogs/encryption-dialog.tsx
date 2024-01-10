@@ -9,7 +9,7 @@ import {
     NoteManifest,
     PlaintextNote,
 } from "src/preload/shared_types";
-import { useConfig } from "./config-provider";
+import { useConfig } from "../ipc/config-provider";
 
 type EncryptionResponse<T = any> =
     | { success: true; data: T; key: string }

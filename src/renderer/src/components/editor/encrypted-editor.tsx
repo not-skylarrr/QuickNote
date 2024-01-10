@@ -1,7 +1,7 @@
 import { InvokeIpc } from "@renderer/lib/ipc";
 import { useEditorNavigation } from "@renderer/providers/editor-navigation";
-import { useEncryptionDialog } from "@renderer/providers/encryption-dialog";
-import { useNotes } from "@renderer/providers/notes-provider";
+import { useEncryptionDialog } from "@renderer/providers/dialogs/encryption-dialog";
+import { useNotes } from "@renderer/providers/ipc/notes-provider";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -21,7 +21,9 @@ const EncryptedEditor = ({ note }: EncryptedEditorProps) => {
 
     const NoteFocused = focusedNote == note.id;
 
-    const [PlaintextNote, SetPlaintextNote] = useState<PlaintextNote | null>();
+    const [PlaintextNote, SetPlaintextNote] = useState<PlaintextNote | null>(
+        null,
+    );
     const [DecryptionKey, SetDecryptionKey] = useState<string | null>(null);
     const [Content, SetContent] = useState<Record<string, any> | null>(null);
 

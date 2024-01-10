@@ -22,7 +22,7 @@ export default function AppWindow({
                 className,
             )}
         >
-            <div className="draggable fixed left-0 right-0 top-0 z-50 flex h-[30px]">
+            <div className="draggable fixed left-[300px] right-0 top-0 z-50 flex h-[30px]">
                 <WindowControlButtons />
             </div>
             {children}

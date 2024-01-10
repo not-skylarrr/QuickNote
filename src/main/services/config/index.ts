@@ -7,7 +7,7 @@ import {
 import {
     ApplicationConfigLabels,
     UserApplicationConfig,
-} from "../../lib/config/const";
+} from "../../lib/config/consts";
 import { CreateIpcEndpointV2 } from "../../lib/ipc/v2";
 
 export const ConfigEndpointV2 = CreateIpcEndpointV2("config", {

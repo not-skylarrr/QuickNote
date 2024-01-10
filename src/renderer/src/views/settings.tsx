@@ -5,8 +5,9 @@ import {
 } from "@renderer/components/settings/inputs";
 import { Input } from "@renderer/components/ui/input";
 import { Separator } from "@renderer/components/ui/separator";
+import HighlightText from "@renderer/components/utils/hightlight-text";
 import { ObjectKeys } from "@renderer/lib/utils";
-import { useConfig } from "@renderer/providers/config-provider";
+import { useConfig } from "@renderer/providers/ipc/config-provider";
 import { useState } from "react";
 
 export default function SettingsView() {
@@ -46,6 +47,17 @@ export default function SettingsView() {
             </div>
 
             {GetSettingGroups().map((configGroup) => {
+                const filteredChildren = ObjectKeys(config).filter(
+                    (s) =>
+                        s.toLowerCase().startsWith(`${configGroup}.`) &&
+                        (s.toLowerCase().includes(Query.toLowerCase()) ||
+                            configLabels[s].title
+                                .toLowerCase()
+                                .includes(Query.toLowerCase())),
+                );
+
+                if (filteredChildren.length == 0) return null;
+
                 return (
                     <div className="flex flex-col gap-2">
                         <h5 className="text-2xl font-medium capitalize">
@@ -55,31 +67,24 @@ export default function SettingsView() {
                         <Separator />
 
                         <div className="mt-2 flex flex-col gap-4">
-                            {ObjectKeys(config).map((setting) => {
+                            {filteredChildren.map((setting) => {
                                 const settingLabelData = configLabels[setting];
-
-                                if (!setting.startsWith(`${configGroup}.`))
-                                    return null;
-
-                                const queryMatchesKey = setting
-                                    .toLowerCase()
-                                    .includes(Query.toLowerCase());
-                                const queryMatchesLabel = settingLabelData.title
-                                    .toLowerCase()
-                                    .includes(Query.toLowerCase());
-
-                                if (!queryMatchesKey && !queryMatchesLabel)
-                                    return null;
 
                                 return (
                                     <div className="flex flex-row items-center justify-between">
                                         <div className="flex max-w-[500px] flex-col">
-                                            <span className="font-normal">
+                                            <HighlightText
+                                                className="font-normal"
+                                                query={Query}
+                                            >
                                                 {settingLabelData.title}
-                                            </span>
-                                            <span className="text-xs text-muted-foreground">
+                                            </HighlightText>
+                                            <HighlightText
+                                                className="text-xs text-muted-foreground"
+                                                query={Query}
+                                            >
                                                 {settingLabelData.description}
-                                            </span>
+                                            </HighlightText>
                                         </div>
 
                                         {settingLabelData.inputType ==

@@ -1,6 +1,6 @@
 import { GetNoteEditorLocationString } from "@renderer/lib/navigation";
-import { useConfig } from "@renderer/providers/config-provider";
-import { useNotes } from "@renderer/providers/notes-provider";
+import { useConfig } from "@renderer/providers/ipc/config-provider";
+import { useNotes } from "@renderer/providers/ipc/notes-provider";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 

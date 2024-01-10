@@ -1,16 +1,18 @@
-import { useNotes } from "@renderer/providers/notes-provider";
+import { useNotes } from "@renderer/providers/ipc/notes-provider";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { PlaintextNote } from "src/preload/shared_types";
 import TextEditor from "./lexical";
 import { DecircularizeObject } from "./utils";
 import { useEditorNavigation } from "@renderer/providers/editor-navigation";
+import { useConfig } from "@renderer/providers/ipc/config-provider";
 
 type PlaintextEditorProps = {
     note: PlaintextNote;
 };
 
 const PlaintextEditor = ({ note }: PlaintextEditorProps) => {
+    const { config } = useConfig();
     const { updatePlaintextNote } = useNotes();
     const { focusedNote, setNoteFocused } = useEditorNavigation();
 
@@ -22,8 +24,8 @@ const PlaintextEditor = ({ note }: PlaintextEditorProps) => {
         SetContent(state);
     };
 
-    const SaveNoteToDisk = async () => {
-        if (!NoteFocused) return;
+    const SaveNoteToDisk = async (autosave: boolean = false) => {
+        if (!NoteFocused && !autosave) return;
 
         const updatedNote = await updatePlaintextNote(note.id, {
             content: DecircularizeObject(Content),
@@ -33,7 +35,9 @@ const PlaintextEditor = ({ note }: PlaintextEditorProps) => {
             return toast.error("Failed to save note");
         }
 
-        return toast.success(`Saved "${note.title}" successfully`);
+        return toast.success(
+            `${autosave ? "Autosaved" : "Saved"} "${note.title}" successfully`,
+        );
     };
 
     const HandleDocumentKeyDown = (ev: KeyboardEvent) => {
@@ -42,6 +46,22 @@ const PlaintextEditor = ({ note }: PlaintextEditorProps) => {
             SaveNoteToDisk();
         }
     };
+
+    useEffect(() => {
+        if (!config["editor.autosave"]) return;
+        if (JSON.stringify(note.content) == JSON.stringify(Content)) {
+            console.log("Attempted saving current content");
+            return;
+        }
+
+        const timeout = setTimeout(() => {
+            SaveNoteToDisk(true);
+        }, config["editor.autosaveDelay"]);
+
+        return () => {
+            clearTimeout(timeout);
+        };
+    }, [Content, config, note]);
 
     useEffect(() => {
         document.addEventListener("keydown", HandleDocumentKeyDown);
