@@ -5,6 +5,7 @@ import { EncryptionEndpoint } from "./services/encryption";
 import { NotesEndpointV2 } from "./services/notes";
 import { WindowEndpoint } from "./services/window";
 import "./services/router";
+import { FolderEndpoint } from "./services/folders";
 
 new AppInstance({
     window: {
@@ -21,3 +22,4 @@ RegisterEndpoint(NotesEndpointV2);
 RegisterEndpoint(ConfigEndpointV2);
 RegisterEndpoint(WindowEndpoint);
 RegisterEndpoint(EncryptionEndpoint);
+RegisterEndpoint(FolderEndpoint);

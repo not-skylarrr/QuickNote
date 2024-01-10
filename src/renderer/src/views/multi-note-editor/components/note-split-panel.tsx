@@ -1,6 +1,7 @@
 import EncryptedEditor from "@renderer/components/editor/encrypted-editor";
 import PlaintextEditor from "@renderer/components/editor/plaintext-editor";
 import { ResizablePanel } from "@renderer/components/ui/resizable";
+import { useFolders } from "@renderer/providers/ipc/folder-provider";
 import { NoteManifest } from "src/preload/shared_types";
 
 type SplitPanelProps = {
@@ -8,10 +9,14 @@ type SplitPanelProps = {
 };
 
 const EditorNoteSplitPanel = ({ note }: SplitPanelProps) => {
+    const { folders } = useFolders();
+    const noteFolder = folders.find((f) => f.id == note.parentFolder);
+
     return (
         <ResizablePanel className="mb-4 flex flex-col" defaultSize={50}>
             <div className="mb-2 flex h-10 w-full shrink-0 flex-row items-center gap-2 px-8">
                 <span className="text-sm text-muted-foreground">
+                    {noteFolder && `${noteFolder.title} / `}
                     {note.title}
                 </span>
             </div>

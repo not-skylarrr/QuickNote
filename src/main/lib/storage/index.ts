@@ -12,6 +12,7 @@ import { GetPathFromAppRoot } from "./utils";
 
 const StorageSpaces = {
     config: "Config",
+    folders: "Folders",
     notes: "Notes",
 };
 

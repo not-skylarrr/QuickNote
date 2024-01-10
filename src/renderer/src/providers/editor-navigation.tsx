@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useNotes } from "./ipc/notes-provider";
+import { toast } from "sonner";
 
 type EditorNavigationContext = {
     focusedNote: string | null;
@@ -35,6 +37,7 @@ const EditorNavigationProvider = ({
 };
 
 const useEditorNavigation = () => {
+    const { notes } = useNotes();
     const [searchParams, setSearchParams] = useSearchParams();
 
     const context = useContext(EditorNavigationContext);
@@ -76,21 +79,35 @@ const useEditorNavigation = () => {
     };
 
     const SplitNoteRight = (noteID: string) => {
+        const primaryNote = notes.find((n) => n.id == openedNoteIds[0]);
+        const splitNote = notes.find((n) => n.id == noteID);
+
+        if (primaryNote?.type == "encrypted" || splitNote?.type == "encrypted")
+            return toast.error("Cannot split view encrypted notes");
+
         if (openedNoteIds.includes(noteID)) return;
         setFocusedNote(noteID);
 
         setSearchParams({
             openedNotes: JSON.stringify([openedNoteIds.at(0), noteID]),
         });
+        return;
     };
 
     const SplitNoteLeft = (noteID: string) => {
+        const primaryNote = notes.find((n) => n.id == openedNoteIds[0]);
+        const splitNote = notes.find((n) => n.id == noteID);
+
+        if (primaryNote?.type == "encrypted" || splitNote?.type == "encrypted")
+            return toast.error("Cannot split view encrypted notes");
+
         if (openedNoteIds.includes(noteID)) return;
         setFocusedNote(noteID);
 
         setSearchParams({
             openedNotes: JSON.stringify([noteID, openedNoteIds.at(-1)]),
         });
+        return;
     };
 
     useEffect(() => {

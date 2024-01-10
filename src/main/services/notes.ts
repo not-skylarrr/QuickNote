@@ -1,12 +1,12 @@
 import { createId } from "@paralleldrive/cuid2";
-import { NoteManifest } from "../../../preload/shared_types";
-import { CreateIpcEndpointV2 } from "../../lib/ipc/v2";
+import { NoteManifest } from "../../preload/shared_types";
+import { CreateIpcEndpointV2 } from "../lib/ipc/v2";
 import {
     DeleteFileFromStorageSpace,
     GetAllFilesFromStorageSpace,
     WriteFileToStorageSpace,
-} from "../../lib/storage";
-import { DEFAULT_EDITOR_STATE, NoteSchema } from "./consts";
+} from "../lib/storage";
+import { DEFAULT_EDITOR_STATE, NoteSchema } from "../lib/notes/consts";
 
 export const NotesEndpointV2 = CreateIpcEndpointV2("notes", {
     get: async (): Promise<NoteSchema[]> => {
@@ -50,7 +50,7 @@ export const NotesEndpointV2 = CreateIpcEndpointV2("notes", {
         const parsedNote = NoteSchema.safeParse(newNote);
         if (!parsedNote.success) return false;
 
-        const result = await WriteFileToStorageSpace(
+        const result = WriteFileToStorageSpace(
             "notes",
             `${noteID}.qnote`,
             JSON.stringify(parsedNote.data, null, 4),

@@ -28,5 +28,5 @@ export type NoteManifest = PlaintextNote | EncryptedNote;
 export type {
     ApplicationConfig,
     ApplicationConfigLabels,
-} from "../main/lib/config/const";
+} from "../main/lib/config/consts";
 export type { IpcRouter } from "../main/services/router";

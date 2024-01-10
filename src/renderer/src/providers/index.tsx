@@ -1,10 +1,11 @@
 import { ThemeProvider } from "@renderer/components/utils/theme-provider";
-import ConfigProvider from "./config-provider";
+import ConfigProvider from "./ipc/config-provider";
 import { DndProvider } from "./dnd-provider";
 import EditorNavigationProvider from "./editor-navigation";
-import NotesDataProvider from "./notes-provider";
-import ConfirmationDialogProvider from "./confirmation-dialog";
-import EncryptionDialogProvider from "./encryption-dialog";
+import NotesDataProvider from "./ipc/notes-provider";
+import ConfirmationDialogProvider from "./dialogs/confirmation-dialog";
+import EncryptionDialogProvider from "./dialogs/encryption-dialog";
+import FolderDataProvider from "./ipc/folder-provider";
 
 export default function ApplicationProviders({
     children,
@@ -16,13 +17,15 @@ export default function ApplicationProviders({
             <ThemeProvider>
                 <ConfigProvider>
                     <NotesDataProvider>
-                        <EditorNavigationProvider>
-                            <EncryptionDialogProvider>
-                                <ConfirmationDialogProvider>
-                                    {children}
-                                </ConfirmationDialogProvider>
-                            </EncryptionDialogProvider>
-                        </EditorNavigationProvider>
+                        <FolderDataProvider>
+                            <EditorNavigationProvider>
+                                <EncryptionDialogProvider>
+                                    <ConfirmationDialogProvider>
+                                        {children}
+                                    </ConfirmationDialogProvider>
+                                </EncryptionDialogProvider>
+                            </EditorNavigationProvider>
+                        </FolderDataProvider>
                     </NotesDataProvider>
                 </ConfigProvider>
             </ThemeProvider>

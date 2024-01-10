@@ -6,15 +6,28 @@ import {
     DropdownMenuTrigger,
 } from "@renderer/components/ui/dropdown-menu";
 import Icon from "@renderer/components/ui/icon";
-import { useNotes } from "@renderer/providers/notes-provider";
+import { GetNoteEditorLocationString } from "@renderer/lib/navigation";
+import { useFolders } from "@renderer/providers/ipc/folder-provider";
+import { useNotes } from "@renderer/providers/ipc/notes-provider";
 import { LuFilePlus, LuFolderPlus, LuPlus, LuSettings } from "react-icons/lu";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const SidebarFooter = () => {
+    const navigate = useNavigate();
     const { createNote } = useNotes();
+    const { createFolder } = useFolders();
+
+    const HandleNoteCreate = async () => {
+        const note = await createNote("New Note");
+        navigate(GetNoteEditorLocationString(note.id));
+    };
+
+    const HandleFolderCreate = async () => {
+        await createFolder("New Folder");
+    };
 
     return (
-        <div className="mt-auto flex w-[300px] flex-row items-center justify-between border-t border-t-border p-2">
+        <div className="mt-auto flex w-[300px] shrink-0 flex-row items-center justify-between border-t border-t-border p-2">
             <Button
                 className="shrink-0 text-muted-foreground hover:text-foreground"
                 variant="ghost"
@@ -37,10 +50,10 @@ const SidebarFooter = () => {
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="mb-2 w-[180px]">
-                    <DropdownMenuItem onSelect={() => createNote("New Note")}>
+                    <DropdownMenuItem onSelect={HandleNoteCreate}>
                         <Icon icon={LuFilePlus} /> New Note
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onSelect={HandleFolderCreate}>
                         <Icon icon={LuFolderPlus} /> New Folder
                     </DropdownMenuItem>
                 </DropdownMenuContent>
