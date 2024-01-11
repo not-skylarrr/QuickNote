@@ -2,7 +2,7 @@ import { useEditorNavigation } from "@renderer/providers/editor-navigation";
 import { useFolders } from "@renderer/providers/ipc/folder-provider";
 import { useNotes } from "@renderer/providers/ipc/notes-provider";
 import SidebarFolderItem from "./components/folder/sidebar-item";
-import SidebarNoteItem from "./components/note-sidebar-item";
+import SidebarNoteItem from "./components/note/sidebar-item";
 import { SidebarTabProvider } from "./components/tabs";
 import { FolderTab, FolderTabWrapper } from "./components/tabs/folder-tabs";
 

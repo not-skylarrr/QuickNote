@@ -53,6 +53,9 @@ export default function SettingsView() {
                         (s.toLowerCase().includes(Query.toLowerCase()) ||
                             configLabels[s].title
                                 .toLowerCase()
+                                .includes(Query.toLowerCase()) ||
+                            configLabels[s].description
+                                .toLowerCase()
                                 .includes(Query.toLowerCase())),
                 );
 

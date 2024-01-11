@@ -8,7 +8,10 @@ import {
 
 type DataProviderContext = {
     notes: NoteManifest[];
-    createNote: (title: string) => Promise<NoteManifest>;
+    createNote: (
+        title: string,
+        options?: Omit<Partial<PlaintextNote>, "id" | "createdAt">,
+    ) => Promise<NoteManifest>;
     updatePlaintextNote: (
         noteID: string,
         updates: Partial<PlaintextNote>,
@@ -40,8 +43,11 @@ const NotesDataProvider = ({ children }: { children: React.ReactNode }) => {
         SetNoteState(notes);
     };
 
-    const CreateNote = async (title: string) => {
-        const note = await InvokeIpc("notes", "create", title);
+    const CreateNote = async (
+        title: string,
+        options?: Omit<Partial<PlaintextNote>, "id" | "createdAt">,
+    ) => {
+        const note = await InvokeIpc("notes", "create", title, options);
         const noteArray = [...Notes, note];
         SetNotes(noteArray);
         return note;
@@ -55,10 +61,10 @@ const NotesDataProvider = ({ children }: { children: React.ReactNode }) => {
         if (noteIndex == -1) return null;
 
         const note = Object.assign({}, Notes[noteIndex]);
-        if (note.type != "plaintext" || updates.type == "plaintext")
+        if (note.type != "plaintext" && updates.type != "plaintext")
             return null;
 
-        const updatedNote = { ...note, ...updates };
+        const updatedNote = { ...note, ...updates } as PlaintextNote;
         const success = await InvokeIpc("notes", "update", noteID, updatedNote);
 
         if (success) {

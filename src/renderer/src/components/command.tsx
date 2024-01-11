@@ -29,9 +29,12 @@ const ApplicationSearch = () => {
 
     return (
         <Dialog open={Open} onOpenChange={SetOpen}>
-            <DialogContent className="w-[500px] max-w-none p-0">
+            <DialogContent className="w-full max-w-[600px] p-0">
                 <Command>
-                    <CommandInput placeholder="Search Application" />
+                    <CommandInput
+                        className="text-base"
+                        placeholder="Search Application"
+                    />
                     <CommandList>
                         <CommandGroup heading="Quick Actions">
                             <CommandItem value="New Note">

@@ -4,7 +4,10 @@ import type { FolderManifest } from "src/main/lib/folders/consts";
 
 type FolderDataContext = {
     folders: FolderManifest[];
-    createFolder: (name: string) => Promise<FolderManifest>;
+    createFolder: (
+        name: string,
+        options?: Omit<Partial<FolderManifest>, "id" | "createdAt">,
+    ) => Promise<FolderManifest>;
     updateFolder: (
         folderID: string,
         updates: Partial<FolderManifest>,
@@ -32,8 +35,11 @@ const FolderDataProvider = ({ children }: { children: React.ReactNode }) => {
         SetFoldersState(folders);
     };
 
-    const CreateFolder = async (name: string) => {
-        const folder = await InvokeIpc("folders", "create", name);
+    const CreateFolder = async (
+        name: string,
+        options?: Omit<Partial<FolderManifest>, "id" | "createdAt">,
+    ) => {
+        const folder = await InvokeIpc("folders", "create", name, options);
         const folderArray = [...Folders, folder];
         SetFolders(folderArray);
         return folder;

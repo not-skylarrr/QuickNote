@@ -25,6 +25,7 @@ import {
 import { FolderManifest } from "src/main/lib/folders/consts";
 import { useSidebarTabs } from "../tabs";
 import { useNotes } from "@renderer/providers/ipc/notes-provider";
+import { useConfirmation } from "@renderer/providers/dialogs/confirmation-dialog";
 
 type SidebarFolderItemProps = {
     folder: FolderManifest;
@@ -34,6 +35,7 @@ const SidebarFolderItem = ({ folder }: SidebarFolderItemProps) => {
     const { updateFolder, deleteFolder } = useFolders();
     const { notes, updateEncryptedNote, updatePlaintextNote } = useNotes();
     const { setTabID } = useSidebarTabs();
+    const { openDialog } = useConfirmation();
 
     const [Editable, SetEditable] = useState(false);
 
@@ -98,6 +100,20 @@ const SidebarFolderItem = ({ folder }: SidebarFolderItemProps) => {
         updateFolder(folder.id, { icon: icon });
     };
 
+    const HandleFolderDelete = () => {
+        openDialog({
+            title: "Are you sure?",
+            description: `You are about to delete "${folder.title} which is irreversable. Are you sure?"`,
+            onConfim: {
+                destructive: true,
+                label: "Delete Folder",
+                action: () => {
+                    deleteFolder(folder.id);
+                },
+            },
+        });
+    };
+
     return (
         <ContextMenu>
             <ContextMenuTrigger>
@@ -159,7 +175,7 @@ const SidebarFolderItem = ({ folder }: SidebarFolderItemProps) => {
                 <ContextMenuSeparator />
                 <ContextMenuItem
                     className="text-destructive focus:bg-destructive/10 focus:text-destructive"
-                    onSelect={() => deleteFolder(folder.id)}
+                    onSelect={HandleFolderDelete}
                 >
                     <Icon icon={LuTrash} />
                     Delete Folder

@@ -94,6 +94,9 @@ module.exports = {
             transformOrigin: {
                 dropdown: "var(--radix-dropdown-menu-content-transform-origin)",
             },
+            fontFamily: {
+                giest: ["Giest Mono"],
+            },
         },
     },
     plugins: [
