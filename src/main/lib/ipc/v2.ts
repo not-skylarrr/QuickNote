@@ -2,7 +2,10 @@
 
 import { ipcMain, ipcRenderer } from "electron";
 
-type IpcEndpoint<N, T extends Record<string, (...args: any[]) => any>> = {
+export type IpcEndpoint<
+    N,
+    T extends Record<string, (...args: any[]) => any>,
+> = {
     name: N;
     endpoints: T;
 };
@@ -33,7 +36,7 @@ export const ExportEndpoint = <
     N extends T["name"],
 >(
     endpoint: T,
-) => {
+): { [K in T["name"]]: T["endpoints"] } => {
     return { [endpoint.name]: endpoint.endpoints };
 };
 

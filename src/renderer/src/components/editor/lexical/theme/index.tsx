@@ -4,7 +4,7 @@ const NoteEditorTheme: EditorThemeClasses = {
     ltr: "ltr",
     rtl: "rtl",
     paragraph: "leading-normal",
-    quote: "text-muted-foreground border-l-[3px] border-l-border pl-4 my-1",
+    quote: "text-muted-foreground border-l-[2px] bg-muted/50 border-l-border pl-4 py-0.5 my-1",
     heading: {
         h1: "text-4xl font-semibold leading-tight mb-2",
         h2: "text-3xl font-semibold leading-tight mb-2",
@@ -25,6 +25,7 @@ const NoteEditorTheme: EditorThemeClasses = {
         ol: "list-decimal list-outside py-1 pl-6",
     },
     link: "text-muted-foreground underline",
+    code: "bg-muted w-full block p-2 rounded border-border border text-sm",
     codeHighlight: {
         atrule: "text-[hsl(350,40%,70%)]",
         attr: "text-[hsl(350,40%,70%)]",

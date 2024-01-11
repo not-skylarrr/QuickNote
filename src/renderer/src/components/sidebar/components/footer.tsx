@@ -11,14 +11,16 @@ import { useFolders } from "@renderer/providers/ipc/folder-provider";
 import { useNotes } from "@renderer/providers/ipc/notes-provider";
 import { LuFilePlus, LuFolderPlus, LuPlus, LuSettings } from "react-icons/lu";
 import { Link, useNavigate } from "react-router-dom";
+import { useSidebarTabs } from "./tabs";
 
 const SidebarFooter = () => {
     const navigate = useNavigate();
     const { createNote } = useNotes();
     const { createFolder } = useFolders();
+    const { tabID } = useSidebarTabs();
 
     const HandleNoteCreate = async () => {
-        const note = await createNote("New Note");
+        const note = await createNote("New Note", { parentFolder: tabID });
         navigate(GetNoteEditorLocationString(note.id));
     };
 

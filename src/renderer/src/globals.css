@@ -2,9 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+    font-family: "Geist Mono";
+    src: local("./assets/GeistMonoVariableVF.woff2");
+}
+
 * {
     box-sizing: border-box;
+}
+
+html {
     font-family: "Inter", sans-serif;
+}
+
+code {
+    font-family: "Geist Mono", sans-serif;
+    font-weight: 300;
 }
 
 ::-webkit-scrollbar {
@@ -14,11 +27,8 @@
     background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-    background: #444;
+    background: #181818;
     border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-    background: "#555";
 }
 
 @layer base {

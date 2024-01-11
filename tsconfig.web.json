@@ -9,7 +9,8 @@
 
         // For types
         "src/main/lib/**/consts.ts",
-        "src/main/services/router.ts"
+        "src/main/services/**/*.ts",
+        "src/main/lib/ipc/v2.ts"
     ],
     "compilerOptions": {
         "composite": true,

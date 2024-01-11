@@ -24,7 +24,10 @@ export const FolderEndpoint = CreateIpcEndpointV2("folders", {
 
         return parsedFolderFiles;
     },
-    create: async (folderName: string) => {
+    create: async (
+        folderName: string,
+        options?: Omit<Partial<FolderManifest>, "id" | "createdAt">,
+    ) => {
         const folder: FolderManifest = {
             id: createId(),
             title: folderName,
@@ -32,6 +35,7 @@ export const FolderEndpoint = CreateIpcEndpointV2("folders", {
             contentIds: [],
             createdAt: new Date(),
             pinned: false,
+            ...options,
         };
 
         WriteFileToStorageSpace(

@@ -1,6 +1,6 @@
 import { ipcMain, ipcRenderer } from "electron";
 
-type IpcEndpointBase<T = any> = {
+export type IpcEndpointBase<T = any> = {
     [key: string]: (context: T, ...args: any) => any;
 };
 

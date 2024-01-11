@@ -1,5 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
-import { NoteManifest } from "../../preload/shared_types";
+import { NoteManifest, PlaintextNote } from "../../preload/shared_types";
 import { CreateIpcEndpointV2 } from "../lib/ipc/v2";
 import {
     DeleteFileFromStorageSpace,
@@ -24,7 +24,10 @@ export const NotesEndpointV2 = CreateIpcEndpointV2("notes", {
         return parsedNoteFiles;
     },
 
-    create: async (title: string) => {
+    create: async (
+        title: string,
+        options?: Omit<Partial<PlaintextNote>, "id" | "createdAt">,
+    ) => {
         const note: NoteSchema = {
             type: "plaintext",
             id: createId(),
@@ -35,6 +38,7 @@ export const NotesEndpointV2 = CreateIpcEndpointV2("notes", {
             updatedAt: new Date(),
             parentFolder: null,
             pinned: false,
+            ...options,
         };
 
         WriteFileToStorageSpace(

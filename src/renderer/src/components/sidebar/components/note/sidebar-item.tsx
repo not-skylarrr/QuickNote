@@ -14,6 +14,7 @@ import { EmojiSelector } from "@renderer/components/ui/emoji/selector";
 import Icon from "@renderer/components/ui/icon";
 import { GetNoteEditorLocationString } from "@renderer/lib/navigation";
 import { cn } from "@renderer/lib/utils";
+import { useConfirmation } from "@renderer/providers/dialogs/confirmation-dialog";
 import { useEncryptionDialog } from "@renderer/providers/dialogs/encryption-dialog";
 import { useEditorNavigation } from "@renderer/providers/editor-navigation";
 import { useFolders } from "@renderer/providers/ipc/folder-provider";
@@ -31,8 +32,10 @@ import {
     LuSplitSquareHorizontal,
     LuTextCursorInput,
     LuTrash,
+    LuUnlock,
 } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { NoteManifest, PlaintextNote } from "src/preload/shared_types";
 
 type NoteSidebarItemProps = {
@@ -52,7 +55,8 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
         splitNoteLeft,
         splitNoteRight,
     } = useEditorNavigation();
-    const { requestNoteLock } = useEncryptionDialog();
+    const { requestNoteLock, requestNoteUnlock } = useEncryptionDialog();
+    const { openDialog } = useConfirmation();
 
     const { setNodeRef, attributes, listeners, transform } = useDraggable({
         id: `note-${note.id}`,
@@ -151,13 +155,50 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
         if (note.type != "plaintext") return;
 
         requestNoteLock(note, (response) => {
-            if (!response.success) return;
+            if (!response.success) return toast.error("Failed to lock note");
 
             updateEncryptedNote(note.id, {
                 type: "encrypted",
                 content: response.data.content,
                 encryptionKeyHash: response.data.encryptionKeyHash,
             });
+            return toast.success(`Locked "${note.title}" successfully`);
+        });
+    };
+
+    const HandleNoteUnlock = () => {
+        if (note.type != "encrypted") return;
+
+        requestNoteUnlock(note, async (response) => {
+            if (!response.success) {
+                console.error(response.error);
+                if (response.error == "Incorrect Password")
+                    return toast.error("Incorrect Password");
+                return;
+            }
+
+            const test = await updatePlaintextNote(note.id, {
+                type: "plaintext",
+                content: response.data.content,
+            });
+
+            if (test == null) return toast.error("Failed to unlock note");
+
+            return toast.success(`Unlocked "${note.title}" successfully`);
+        });
+    };
+
+    const HandleNoteDelete = () => {
+        openDialog({
+            title: "Are you sure?",
+            description: `You are about to delete "${note.title}", which is irreversable. Are you sure?"`,
+            onConfim: {
+                destructive: true,
+                label: "Delete Note",
+                action: () => {
+                    deleteNote(note.id);
+                },
+            },
         });
     };
 
@@ -329,15 +370,23 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
                     )}
                 </ContextMenuItem>
 
-                <ContextMenuItem onSelect={HandleNoteLock}>
-                    <Icon icon={LuLock} /> Lock Note
-                </ContextMenuItem>
+                {note.type == "plaintext" && (
+                    <ContextMenuItem onSelect={HandleNoteLock}>
+                        <Icon icon={LuLock} /> Lock Note
+                    </ContextMenuItem>
+                )}
+
+                {note.type == "encrypted" && (
+                    <ContextMenuItem onSelect={HandleNoteUnlock}>
+                        <Icon icon={LuUnlock} /> Unlock Note
+                    </ContextMenuItem>
+                )}
 
                 <ContextMenuSeparator />
 
                 <ContextMenuItem
                     className="text-destructive focus:bg-destructive/10 focus:text-destructive"
-                    onSelect={() => deleteNote(note.id)}
+                    onSelect={HandleNoteDelete}
                 >
                     <Icon icon={LuTrash} /> Delete Note
                 </ContextMenuItem>
