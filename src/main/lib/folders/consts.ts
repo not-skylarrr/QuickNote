@@ -7,6 +7,7 @@ export const FolderManifest = z.object({
     contentIds: z.array(z.string()),
     createdAt: z.coerce.date(),
     pinned: z.boolean(),
+    parentFolder: z.string().nullable().default(null),
 });
 
 export type FolderManifest = z.infer<typeof FolderManifest>;

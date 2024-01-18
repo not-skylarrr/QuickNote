@@ -1,13 +1,13 @@
 import { createId } from "@paralleldrive/cuid2";
 import { FolderManifest } from "../lib/folders/consts";
-import { CreateIpcEndpointV2 } from "../lib/ipc/v2";
+import { CreateIpcEndpoint } from "../lib/ipc";
 import {
     DeleteFileFromStorageSpace,
     GetAllFilesFromStorageSpace,
     WriteFileToStorageSpace,
 } from "../lib/storage";
 
-export const FolderEndpoint = CreateIpcEndpointV2("folders", {
+export const FolderEndpoint = CreateIpcEndpoint("folders", {
     get: () => {
         const folderFiles = GetAllFilesFromStorageSpace("folders");
         if (!folderFiles.success) return [];
@@ -35,6 +35,7 @@ export const FolderEndpoint = CreateIpcEndpointV2("folders", {
             contentIds: [],
             createdAt: new Date(),
             pinned: false,
+            parentFolder: null,
             ...options,
         };
 

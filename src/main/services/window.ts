@@ -1,7 +1,7 @@
 import { BrowserWindow, app } from "electron";
-import { CreateIpcEndpointV2 } from "../lib/ipc/v2";
+import { CreateIpcEndpoint } from "../lib/ipc";
 
-export const WindowEndpoint = CreateIpcEndpointV2("window", {
+export const WindowEndpoint = CreateIpcEndpoint("window", {
     minimize: () => {
         BrowserWindow.getFocusedWindow()?.minimize();
     },

@@ -1,6 +1,8 @@
+import { useConfig } from "@renderer/providers/ipc/config-provider";
 import { createContext, useContext, useEffect, useState } from "react";
+import { ApplicationConfig } from "src/preload/shared_types";
 
-type Theme = "dark" | "light" | "system";
+type Theme = ApplicationConfig["application.theme"];
 
 type ThemeProviderProps = {
     children: React.ReactNode;
@@ -14,7 +16,7 @@ type ThemeProviderState = {
 };
 
 const initialState: ThemeProviderState = {
-    theme: "system",
+    theme: "dark",
     setTheme: () => null,
 };
 
@@ -22,36 +24,24 @@ const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 
 export function ThemeProvider({
     children,
-    defaultTheme = "system",
-    storageKey = "vite-ui-theme",
+    defaultTheme = "dark",
+    storageKey = "ui-theme",
     ...props
 }: ThemeProviderProps) {
+    const { config } = useConfig();
+
     const [theme, setTheme] = useState<Theme>(
         () => (localStorage.getItem(storageKey) as Theme) || defaultTheme,
     );
 
     useEffect(() => {
-        console.log(window.api);
-        window.api.ipc.on("theme:update", (_, theme: "dark" | "light") => {
-            setTheme(theme);
-        });
-    }, []);
+        setTheme(config["application.theme"]);
+    }, [config]);
 
     useEffect(() => {
         const root = window.document.documentElement;
 
-        root.classList.remove("light", "dark");
-
-        if (theme === "system") {
-            const systemTheme = window.matchMedia(
-                "(prefers-color-scheme: dark)",
-            ).matches
-                ? "dark"
-                : "light";
-
-            root.classList.add(systemTheme);
-            return;
-        }
+        root.classList.remove("light", "dark", "slay");
 
         root.classList.add(theme);
     }, [theme]);

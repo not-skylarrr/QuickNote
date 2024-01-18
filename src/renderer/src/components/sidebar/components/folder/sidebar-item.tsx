@@ -13,7 +13,9 @@ import { Emoji } from "@renderer/components/ui/emoji/elem";
 import { EmojiSelector } from "@renderer/components/ui/emoji/selector";
 import Icon from "@renderer/components/ui/icon";
 import { cn } from "@renderer/lib/utils";
+import { useConfirmation } from "@renderer/providers/dialogs/confirmation-dialog";
 import { useFolders } from "@renderer/providers/ipc/folder-provider";
+import { useNotes } from "@renderer/providers/ipc/notes-provider";
 import { useState } from "react";
 import {
     LuFolder,
@@ -24,8 +26,6 @@ import {
 } from "react-icons/lu";
 import { FolderManifest } from "src/main/lib/folders/consts";
 import { useSidebarTabs } from "../tabs";
-import { useNotes } from "@renderer/providers/ipc/notes-provider";
-import { useConfirmation } from "@renderer/providers/dialogs/confirmation-dialog";
 
 type SidebarFolderItemProps = {
     folder: FolderManifest;
@@ -34,7 +34,7 @@ type SidebarFolderItemProps = {
 const SidebarFolderItem = ({ folder }: SidebarFolderItemProps) => {
     const { updateFolder, deleteFolder } = useFolders();
     const { notes, updateEncryptedNote, updatePlaintextNote } = useNotes();
-    const { setTabID } = useSidebarTabs();
+    const { openTab } = useSidebarTabs();
     const { openDialog } = useConfirmation();
 
     const [Editable, SetEditable] = useState(false);
@@ -72,7 +72,7 @@ const SidebarFolderItem = ({ folder }: SidebarFolderItemProps) => {
     });
 
     const HandleFolderClick = () => {
-        setTabID(folder.id);
+        openTab(folder.id);
     };
 
     const HandleInputKeyDown = (ev: React.KeyboardEvent<HTMLInputElement>) => {

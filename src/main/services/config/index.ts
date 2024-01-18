@@ -5,12 +5,13 @@ import {
     UpdateUserApplicationConfig,
 } from "../../lib/config";
 import {
+    ApplicationConfig,
     ApplicationConfigLabels,
     UserApplicationConfig,
 } from "../../lib/config/consts";
-import { CreateIpcEndpointV2 } from "../../lib/ipc/v2";
+import { CreateIpcEndpoint } from "../../lib/ipc";
 
-export const ConfigEndpointV2 = CreateIpcEndpointV2("config", {
+export const ConfigEndpointV2 = CreateIpcEndpoint("config", {
     get: async () => {
         const userConfig = GetUserApplicationConfig();
         return GetApplicationConfig(userConfig);
@@ -20,7 +21,14 @@ export const ConfigEndpointV2 = CreateIpcEndpointV2("config", {
     },
     update: async (updates: UserApplicationConfig) => {
         if (updates["application.theme"]) {
-            nativeTheme.themeSource = updates["application.theme"];
+            let uiThemeType: ApplicationConfig["application.theme"] =
+                updates["application.theme"];
+
+            if (uiThemeType != "dark" && uiThemeType != "light") {
+                uiThemeType = "light";
+            }
+
+            nativeTheme.themeSource = uiThemeType;
             BrowserWindow.getFocusedWindow()?.webContents.send(
                 "theme:update",
                 updates["application.theme"],

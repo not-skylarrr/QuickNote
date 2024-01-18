@@ -1,23 +1,30 @@
 import { InvokeIpc } from "@renderer/lib/ipc";
-import { useEditorNavigation } from "@renderer/providers/editor-navigation";
 import { useEncryptionDialog } from "@renderer/providers/dialogs/encryption-dialog";
+import { useEditorNavigation } from "@renderer/providers/editor-navigation";
+import { useConfig } from "@renderer/providers/ipc/config-provider";
 import { useNotes } from "@renderer/providers/ipc/notes-provider";
+import { useShortcut } from "@renderer/providers/shortcut-provider";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { LuLock, LuUnlock } from "react-icons/lu";
 import { toast } from "sonner";
 import { EncryptedNote, PlaintextNote } from "src/preload/shared_types";
+import { Button } from "../ui/button";
+import Icon from "../ui/icon";
 import TextEditor from "./lexical";
 import { DecircularizeObject } from "./utils";
+import { useLocation } from "react-router-dom";
+import { IsFromQuickNavOrigin } from "@renderer/lib/navigation";
 
 type EncryptedEditorProps = {
     note: EncryptedNote;
 };
 
 const EncryptedEditor = ({ note }: EncryptedEditorProps) => {
-    const navigate = useNavigate();
+    const { config } = useConfig();
     const { updateEncryptedNote } = useNotes();
     const { focusedNote, setNoteFocused } = useEditorNavigation();
     const { requestNoteUnlock } = useEncryptionDialog();
+    const location = useLocation();
 
     const NoteFocused = focusedNote == note.id;
 
@@ -63,43 +70,72 @@ const EncryptedEditor = ({ note }: EncryptedEditorProps) => {
         return toast.success("Saved Note Successfully");
     };
 
-    const HandleDocumentKeyDown = (ev: KeyboardEvent) => {
-        if (ev.ctrlKey && ev.key == "s") {
-            ev.preventDefault();
-            SaveNoteToDisk();
-        }
-    };
-
-    useEffect(() => {
-        document.addEventListener("keydown", HandleDocumentKeyDown);
-
-        return () => {
-            document.removeEventListener("keydown", HandleDocumentKeyDown);
-        };
-    }, [Content, NoteFocused, DecryptionKey, PlaintextNote]);
-
-    useEffect(() => {
+    const HandleNoteUnlock = () => {
         requestNoteUnlock(note, (response) => {
             if (!response.success) {
-                return navigate(-1);
+                return;
             }
 
             SetPlaintextNote(response.data);
             SetContent(response.data.content);
             SetDecryptionKey(response.key);
         });
-    }, []);
+    };
+
+    useShortcut(
+        "CTRL+S",
+        () => {
+            SaveNoteToDisk();
+        },
+        [Content, NoteFocused, DecryptionKey, PlaintextNote],
+    );
+
+    useEffect(() => {
+        if (Content) return;
+
+        if (
+            config["encryption.promptUnlockOnQuickNavigation"] &&
+            IsFromQuickNavOrigin(location)
+        ) {
+            HandleNoteUnlock();
+            return;
+        }
+
+        if (config["encryption.promptUnlockOnNavigation"]) {
+            HandleNoteUnlock();
+        }
+    }, [config, Content]);
+
+    if (!Content)
+        return (
+            <div className="flex h-full w-full">
+                <div className="m-auto flex w-full max-w-[300px] flex-col items-center justify-center gap-8">
+                    <div className="flex flex-col items-center justify-center gap-4">
+                        <Icon
+                            className="stroke-muted-foreground"
+                            icon={LuLock}
+                            dimensions={64}
+                        />
+                        <h5 className="text-2xl font-semibold">Note Locked</h5>
+                    </div>
+
+                    <Button
+                        className="w-full"
+                        variant="outline"
+                        onClick={HandleNoteUnlock}
+                    >
+                        <Icon icon={LuUnlock} /> Unlock Note
+                    </Button>
+                </div>
+            </div>
+        );
 
     return (
-        <div className="h-full w-full">
-            {Content && (
-                <TextEditor
-                    initialState={Content}
-                    onChange={HandleEditorStateChange}
-                    onFocus={() => setNoteFocused(note.id)}
-                />
-            )}
-        </div>
+        <TextEditor
+            initialState={Content}
+            onChange={HandleEditorStateChange}
+            onFocus={() => setNoteFocused(note.id)}
+        />
     );
 };
 

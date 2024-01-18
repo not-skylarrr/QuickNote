@@ -87,7 +87,7 @@ const TextEditor = ({ onChange, onFocus, initialState }: NoteEditorProps) => {
 
     return (
         <LexicalComposer initialConfig={initialConfig}>
-            <div className="relative h-full w-full p-0">
+            <div className="relative w-full p-0">
                 <RichTextPlugin
                     contentEditable={
                         <EditorContent onFocus={() => HandleEditorFocus()} />

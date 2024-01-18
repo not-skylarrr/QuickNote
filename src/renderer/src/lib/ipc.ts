@@ -7,16 +7,16 @@
 // I love it for being great
 // Not because it's pretty
 
-import type { IpcRouter } from "src/preload/shared_types";
+import type { IpcRouterMain } from "src/preload/shared_types";
 
 export const InvokeIpc = <
-    K extends keyof IpcRouter,
-    E extends keyof IpcRouter[K],
-    F extends IpcRouter[K][E],
-    A extends IpcRouter[K][E] extends never
+    K extends keyof IpcRouterMain,
+    E extends keyof IpcRouterMain[K],
+    F extends IpcRouterMain[K][E],
+    A extends IpcRouterMain[K][E] extends never
         ? any[]
         : // @ts-ignore
-          Parameters<IpcRouter[K][E]>,
+          Parameters<IpcRouterMain[K][E]>,
 >(
     group: K,
     endpoint: E,

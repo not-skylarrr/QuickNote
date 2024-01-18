@@ -10,6 +10,7 @@ export const PlaintextNoteSchema = z.object({
     updatedAt: z.coerce.date(),
     parentFolder: z.string().nullable(),
     pinned: z.boolean().default(false),
+    tags: z.array(z.string()).default([]),
 });
 
 export const EncryptedNoteSchema = z.object({
@@ -23,10 +24,13 @@ export const EncryptedNoteSchema = z.object({
     updatedAt: z.coerce.date(),
     parentFolder: z.string().nullable(),
     pinned: z.boolean().default(false),
+    tags: z.array(z.string()).default([]),
 });
 
 export const NoteSchema = z.union([PlaintextNoteSchema, EncryptedNoteSchema]);
 export type NoteSchema = z.infer<typeof NoteSchema>;
+export type PlaintextNote = z.infer<typeof PlaintextNoteSchema>;
+export type EncryptedNote = z.infer<typeof EncryptedNoteSchema>;
 
 export const DEFAULT_EDITOR_STATE = {
     root: {

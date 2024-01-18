@@ -9,7 +9,7 @@ const EditorSplitDndLayer = () => {
     if (!dragInProgress) return null;
 
     return (
-        <div className="absolute left-0 right-0 top-0 z-40 grid h-full w-full grid-cols-2">
+        <div className="absolute left-0 right-0 top-0 z-20 grid h-full w-full grid-cols-2">
             <SplitEditorDropZone side="left" />
             <SplitEditorDropZone side="right" />
         </div>
