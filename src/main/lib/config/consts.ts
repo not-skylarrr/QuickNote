@@ -5,12 +5,14 @@ import { z } from "zod";
 
 // prettier-ignore
 const ApplicationConfigSchema = z.object({
-    "application.theme": z.union([z.literal("light"), z.literal("dark")]).optional(),
+    "application.theme": z.union([z.literal("light"), z.literal("dark"), z.literal("slay")]).optional(),
     "editor.autosave": z.boolean().optional(),
     "editor.autosaveDelay": z.number().optional(),
     "editor.openOnStartup": z.union([z.literal("recent"), z.literal("new")]).optional(),
     "encryption.cacheNotePasswords": z.boolean().optional(),
-    "encryption.passwordCacheSeconds": z.number().min(0).optional() 
+    "encryption.passwordCacheSeconds": z.number().min(0).optional(),
+    "encryption.promptUnlockOnNavigation": z.boolean().optional(),
+    "encryption.promptUnlockOnQuickNavigation": z.boolean().optional()
 });
 
 type UserApplicationConfig = z.infer<typeof ApplicationConfigSchema>;
@@ -35,6 +37,8 @@ const BaseApplicationConfig: ApplicationConfig = {
     "editor.openOnStartup": "new",
     "encryption.cacheNotePasswords": false,
     "encryption.passwordCacheSeconds": 300,
+    "encryption.promptUnlockOnNavigation": true,
+    "encryption.promptUnlockOnQuickNavigation": true,
 };
 
 const ApplicationConfigLabels: ApplicationConfigLabels = {
@@ -44,8 +48,9 @@ const ApplicationConfigLabels: ApplicationConfigLabels = {
         defaultValue: "dark",
         inputType: "select",
         inputOptions: [
-            { label: "Dark", value: "dark" },
             { label: "Light", value: "light" },
+            { label: "Dark", value: "dark" },
+            { label: "✨ Slayyy ✨", value: "slay" },
         ],
     },
     "editor.autosave": {
@@ -94,6 +99,28 @@ const ApplicationConfigLabels: ApplicationConfigLabels = {
             "The amount of seconds a password is cached before it will need to be re-entered to open a note.",
         defaultValue: 300,
         inputType: "number",
+    },
+    "encryption.promptUnlockOnNavigation": {
+        title: "Prompt Unlock On Open",
+        description:
+            "Whether the unlock dialog is immediately opened upon opening an encrypted note from the sidebar.",
+        defaultValue: true,
+        inputType: "select",
+        inputOptions: [
+            { label: "Enabled", value: true },
+            { label: "Disabled", value: false },
+        ],
+    },
+    "encryption.promptUnlockOnQuickNavigation": {
+        title: "Prompt Unlock On Quick Navigation",
+        description:
+            "Whether the unlock dialog is immediatley opened upon opening an encrypted note from the command dialog.",
+        defaultValue: true,
+        inputType: "select",
+        inputOptions: [
+            { label: "Enabled", value: true },
+            { label: "Disabled", value: false },
+        ],
     },
 };
 

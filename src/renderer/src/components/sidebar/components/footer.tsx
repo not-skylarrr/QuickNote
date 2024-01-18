@@ -6,7 +6,7 @@ import {
     DropdownMenuTrigger,
 } from "@renderer/components/ui/dropdown-menu";
 import Icon from "@renderer/components/ui/icon";
-import { GetNoteEditorLocationString } from "@renderer/lib/navigation";
+import { GetNoteNavigationString } from "@renderer/lib/navigation";
 import { useFolders } from "@renderer/providers/ipc/folder-provider";
 import { useNotes } from "@renderer/providers/ipc/notes-provider";
 import { LuFilePlus, LuFolderPlus, LuPlus, LuSettings } from "react-icons/lu";
@@ -21,11 +21,13 @@ const SidebarFooter = () => {
 
     const HandleNoteCreate = async () => {
         const note = await createNote("New Note", { parentFolder: tabID });
-        navigate(GetNoteEditorLocationString(note.id));
+        navigate(GetNoteNavigationString(note.id));
     };
 
     const HandleFolderCreate = async () => {
-        await createFolder("New Folder");
+        await createFolder("New Folder", {
+            parentFolder: tabID == "root" ? null : tabID,
+        });
     };
 
     return (

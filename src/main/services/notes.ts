@@ -1,6 +1,6 @@
 import { createId } from "@paralleldrive/cuid2";
 import { NoteManifest, PlaintextNote } from "../../preload/shared_types";
-import { CreateIpcEndpointV2 } from "../lib/ipc/v2";
+import { CreateIpcEndpoint } from "../lib/ipc";
 import {
     DeleteFileFromStorageSpace,
     GetAllFilesFromStorageSpace,
@@ -8,7 +8,7 @@ import {
 } from "../lib/storage";
 import { DEFAULT_EDITOR_STATE, NoteSchema } from "../lib/notes/consts";
 
-export const NotesEndpointV2 = CreateIpcEndpointV2("notes", {
+export const NotesEndpointV2 = CreateIpcEndpoint("notes", {
     get: async (): Promise<NoteSchema[]> => {
         const noteFiles = GetAllFilesFromStorageSpace("notes");
         if (!noteFiles.success) return [];
@@ -38,6 +38,7 @@ export const NotesEndpointV2 = CreateIpcEndpointV2("notes", {
             updatedAt: new Date(),
             parentFolder: null,
             pinned: false,
+            tags: [],
             ...options,
         };
 

@@ -13,7 +13,7 @@ const EditorNoteSplitPanel = ({ note }: SplitPanelProps) => {
     const noteFolder = folders.find((f) => f.id == note.parentFolder);
 
     return (
-        <ResizablePanel className="mb-4 flex flex-col" defaultSize={50}>
+        <ResizablePanel className="flex flex-col" defaultSize={50}>
             <div className="mb-2 flex h-10 w-full shrink-0 flex-row items-center gap-2 px-8">
                 <span className="text-sm text-muted-foreground">
                     {noteFolder && `${noteFolder.title} / `}

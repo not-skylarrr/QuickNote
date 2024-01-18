@@ -8,9 +8,8 @@
         "src/preload/shared_types.ts",
 
         // For types
-        "src/main/lib/**/consts.ts",
-        "src/main/services/**/*.ts",
-        "src/main/lib/ipc/v2.ts"
+        "src/main/lib/**/*.ts",
+        "src/main/services/**/*.ts"
     ],
     "compilerOptions": {
         "composite": true,

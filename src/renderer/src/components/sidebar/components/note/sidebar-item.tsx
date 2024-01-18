@@ -1,5 +1,6 @@
 import { useDraggable } from "@dnd-kit/core";
 import { ContextMenuSub } from "@radix-ui/react-context-menu";
+import { GetTagsFromNoteContent } from "@renderer/components/editor/lexical/lib/tags";
 import {
     ContextMenu,
     ContextMenuContent,
@@ -12,7 +13,7 @@ import {
 import { Emoji } from "@renderer/components/ui/emoji/elem";
 import { EmojiSelector } from "@renderer/components/ui/emoji/selector";
 import Icon from "@renderer/components/ui/icon";
-import { GetNoteEditorLocationString } from "@renderer/lib/navigation";
+import { GetNoteNavigationString } from "@renderer/lib/navigation";
 import { cn } from "@renderer/lib/utils";
 import { useConfirmation } from "@renderer/providers/dialogs/confirmation-dialog";
 import { useEncryptionDialog } from "@renderer/providers/dialogs/encryption-dialog";
@@ -58,16 +59,13 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
     const { requestNoteLock, requestNoteUnlock } = useEncryptionDialog();
     const { openDialog } = useConfirmation();
 
-    const { setNodeRef, attributes, listeners, transform } = useDraggable({
+    const { setNodeRef, attributes, listeners } = useDraggable({
         id: `note-${note.id}`,
         data: {
+            id: note.id,
             type: "note-link",
         },
     });
-
-    const DraggableStyle = transform
-        ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` }
-        : undefined;
 
     const [Editable, SetEditble] = useState(false);
     const [NoteTitle, SetNoteTitle] = useState(note.title);
@@ -131,7 +129,7 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
     const HandleNoteLinkClick = () => {
         // If note is in single editor mode, replace displayed note
         if (openedNoteIds.length <= 1) {
-            navigate(GetNoteEditorLocationString(note.id));
+            navigate(GetNoteNavigationString(note.id));
             return;
         }
 
@@ -161,6 +159,7 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
                 type: "encrypted",
                 content: response.data.content,
                 encryptionKeyHash: response.data.encryptionKeyHash,
+                tags: [],
             });
             return toast.success(`Locked "${note.title}" successfully`);
         });
@@ -180,6 +179,7 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
             const test = await updatePlaintextNote(note.id, {
                 type: "plaintext",
                 content: response.data.content,
+                tags: GetTagsFromNoteContent(response.data.content),
             });
 
             if (test == null) return toast.error("Failed to unlock note");
@@ -197,6 +197,7 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
                 label: "Delete Note",
                 action: () => {
                     deleteNote(note.id);
+                    navigate("/");
                 },
             },
         });
@@ -208,7 +209,7 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
                 {Editable ? (
                     // Div with input to allow user editing
                     <div
-                        className="flex w-full cursor-pointer flex-row items-center gap-2 rounded px-2.5 py-1.5 text-sm font-normal transition-colors duration-100 hover:bg-accent data-[active=true]:bg-accent [&>*]:shrink-0"
+                        className="flex w-full cursor-pointer flex-row items-center gap-2 rounded px-2.5 py-1.5 text-sm font-normal duration-100 hover:bg-accent data-[active=true]:bg-accent [&>*]:shrink-0"
                         data-active={true}
                     >
                         {note.icon ? (
@@ -229,11 +230,10 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
                     // Button acting as link while editing is disabled
                     <button
                         className={cn(
-                            "flex w-full cursor-pointer flex-row items-center gap-2 rounded px-2.5 py-1.5 text-sm font-normal transition-colors duration-100",
+                            "flex w-full cursor-pointer flex-row items-center gap-2 rounded px-2.5 py-1.5 text-sm font-normal duration-100",
                             "hover:bg-accent data-[active=true]:bg-accent [&>*]:shrink-0",
                         )}
                         ref={setNodeRef}
-                        style={DraggableStyle}
                         {...listeners}
                         {...attributes}
                         data-active={isNoteOpen(note.id)}
@@ -245,7 +245,7 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
                         ) : (
                             <Icon icon={LuFile} dimensions={18} />
                         )}
-                        <span className="border-b border-b-transparent transition-all duration-300">
+                        <span className="border-b border-b-transparent">
                             {NoteTitle}
                         </span>
 

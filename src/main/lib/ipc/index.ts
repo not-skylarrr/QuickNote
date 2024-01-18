@@ -1,58 +1,67 @@
-import { ipcMain, ipcRenderer } from "electron";
+// @ts-nocheck
 
-export type IpcEndpointBase<T = any> = {
-    [key: string]: (context: T, ...args: any) => any;
+import { ipcMain } from "electron";
+
+type IpcEndpointRecord = Record<string, (...args: any[]) => any>;
+
+export type IpcEndpoint<N extends string, T extends IpcEndpointRecord> = {
+    name: N;
+    endpoints: T;
 };
 
-type Pop<T extends any[]> = T extends [any, ...infer U] ? U : never;
-
-type EndpointParameters<T extends (...args: any[]) => any> = Pop<
-    Parameters<T>
-> extends never[]
-    ? any[]
-    : Pop<Parameters<T>>;
-
-type EndpointFunctionWithoutContext<T extends (...args: any[]) => any> = (
-    ...args: EndpointParameters<T>
-) => ReturnType<T>;
-
-type IpcEndpointWithoutContext<
-    T extends Record<string, (...args: any) => any>,
-> = {
-    [key in keyof T]: EndpointFunctionWithoutContext<T[key]>;
-};
-
-export const CreateIpcEndpoint =
-    <K extends any>() =>
-    <T extends IpcEndpointBase<K>>(
-        name: string,
-        routerAPI: T,
-    ): { name: string; router: T } => {
-        return {
-            name: name,
-            router: routerAPI,
-        };
+export const CreateIpcEndpoint = <
+    T extends Record<string, (...args: any[]) => any>,
+    N extends string,
+>(
+    endpointName: N,
+    endpoints: T,
+): IpcEndpoint<N, T> => {
+    return {
+        name: endpointName,
+        endpoints: endpoints,
     };
+};
 
-export const UseIpcEndpoint = <T extends IpcEndpointBase>(
-    endpoint: { name: string; router: T },
-    context?: any,
+export const RegisterEndpoint = (endpoint: IpcEndpoint<any, any>) => {
+    for (let key of Object.keys(endpoint.endpoints)) {
+        ipcMain.handle(`${endpoint.name}:${key}`, async (ev, ...args) => {
+            return await endpoint.endpoints[key](...args);
+        });
+    }
+};
+
+export const ExportEndpoint = <
+    T extends IpcEndpoint<
+        T["name"],
+        T["endpoints"] extends IpcEndpointRecord ? T["endpoints"] : {}
+    >,
+>(
+    endpoint: T,
+): { [K in T["name"]]: T["endpoints"] } => {
+    RegisterEndpoint(endpoint);
+    return { [endpoint.name]: endpoint.endpoints };
+};
+
+// Experimental (Doesn't work at all...)
+export const CreateIpcRouter = <
+    T extends ReadonlyArray<IpcEndpoint<T["name"], T["endpoints"]>>,
+>(
+    ...endpoints: T
 ) => {
-    if (ipcMain) {
-        for (const key of Object.keys(endpoint.router)) {
-            ipcMain.handle(`${endpoint.name}:${key}`, (_, ...args) => {
-                return endpoint.router[key](context, ...args);
-            });
-        }
+    let routerObject: {
+        [K in T[number]["name"]]: T[number] extends IpcEndpoint<
+            K,
+            Record<string, any>
+        >
+            ? T[number]["endpoints"]
+            : never;
+    } = {};
+
+    for (let endpoint of endpoints) {
+        RegisterEndpoint(endpoint);
+
+        routerObject[endpoint.name] = endpoint.endpoints;
     }
 
-    const rendererRouter = {};
-
-    for (const key of Object.keys(endpoint.router)) {
-        rendererRouter[key] = async (...args) => {
-            return await ipcRenderer.invoke(`${endpoint.name}:${key}`, ...args);
-        };
-    }
-
-    return rendererRouter as IpcEndpointWithoutContext<T>;
+    return routerObject;
 };

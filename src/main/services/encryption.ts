@@ -8,7 +8,7 @@ import {
     GetKeySaltFromContent,
     HashString,
 } from "../lib/encryption";
-import { CreateIpcEndpointV2 } from "../lib/ipc/v2";
+import { CreateIpcEndpoint } from "../lib/ipc";
 
 type EncryptionActionResponse<T = any> =
     | {
@@ -20,11 +20,8 @@ type EncryptionActionResponse<T = any> =
           error: string;
       };
 
-export const EncryptionEndpoint = CreateIpcEndpointV2("encryption", {
-    test: () => {
-        GenerateInitialEncryptionValues();
-    },
-    getKey: (note: EncryptedNote, password: string) => {
+export const EncryptionEndpoint = CreateIpcEndpoint("encryption", {
+    generateKey: (note: EncryptedNote, password: string) => {
         const contentBuffer = Buffer.from(note.content, "base64");
         const encryptionSalt = contentBuffer.subarray(0, 17);
 
@@ -77,6 +74,7 @@ export const EncryptionEndpoint = CreateIpcEndpointV2("encryption", {
                     updatedAt: note.updatedAt,
                     parentFolder: note.parentFolder,
                     pinned: note.pinned,
+                    tags: note.tags,
                 },
             };
         } catch (e) {
@@ -126,6 +124,7 @@ export const EncryptionEndpoint = CreateIpcEndpointV2("encryption", {
                 updatedAt: note.updatedAt,
                 parentFolder: note.parentFolder,
                 pinned: note.pinned,
+                tags: note.tags,
             },
         };
     },

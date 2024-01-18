@@ -6,7 +6,7 @@ const EditorContent = ({
 }: React.HTMLAttributes<HTMLDivElement>) => {
     return (
         <ContentEditable
-            className="h-full w-full min-w-0 border-none text-foreground outline-none"
+            className="h-full w-full min-w-0 border-none pb-8 text-foreground outline-none"
             {...props}
         />
     );

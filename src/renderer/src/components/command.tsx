@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
-import { LuFilePlus, LuFolderPlus } from "react-icons/lu";
+import { useShortcut } from "@renderer/providers/shortcut-provider";
+import { useState } from "react";
+import { LuFile, LuFilePlus, LuFolderPlus } from "react-icons/lu";
 import {
     Command,
     CommandGroup,
@@ -9,23 +10,44 @@ import {
 } from "./ui/command";
 import { Dialog, DialogContent } from "./ui/dialog";
 import Icon from "./ui/icon";
+import { useNotes } from "@renderer/providers/ipc/notes-provider";
+import { Emoji } from "./ui/emoji/elem";
+import { GetNoteNavigationString } from "@renderer/lib/navigation";
+import { NoteManifest } from "src/preload/shared_types";
+import { useNavigate } from "react-router-dom";
+import { useFolders } from "@renderer/providers/ipc/folder-provider";
+import { useSidebarTabs } from "./sidebar/components/tabs";
 
 const ApplicationSearch = () => {
+    const { notes, createNote } = useNotes();
+    const { folders, createFolder } = useFolders();
+    const { tabID } = useSidebarTabs();
+    const navigate = useNavigate();
+
     const [Open, SetOpen] = useState(false);
 
-    const HandleDocumentKeyDown = (ev: KeyboardEvent) => {
-        if (ev.ctrlKey && ev.key == "k") {
-            SetOpen((curr) => !curr);
-        }
+    const HandleNoteCreation = async () => {
+        const note = await createNote("New Note", { parentFolder: tabID });
+        navigate(GetNoteNavigationString(note.id));
+        SetOpen(false);
     };
 
-    useEffect(() => {
-        document.addEventListener("keydown", HandleDocumentKeyDown);
+    const HandleFolderCreation = async () => {
+        await createFolder("New Folder", {
+            parentFolder: tabID,
+        });
+        SetOpen(false);
+    };
 
-        return () => {
-            document.removeEventListener("keydown", HandleDocumentKeyDown);
-        };
-    }, []);
+    const HandleNoteNavigation = (note: NoteManifest) => {
+        const noteEditorString = GetNoteNavigationString(note.id, true);
+        navigate(noteEditorString);
+        SetOpen(false);
+    };
+
+    useShortcut("CTRL+K", () => {
+        SetOpen((curr) => !curr);
+    });
 
     return (
         <Dialog open={Open} onOpenChange={SetOpen}>
@@ -37,15 +59,65 @@ const ApplicationSearch = () => {
                     />
                     <CommandList>
                         <CommandGroup heading="Quick Actions">
-                            <CommandItem value="New Note">
-                                <Icon icon={LuFilePlus} className="mr-2" /> New
-                                Note
+                            <CommandItem
+                                value="New Note"
+                                onSelect={() => HandleNoteCreation()}
+                            >
+                                <Icon
+                                    icon={LuFilePlus}
+                                    className="mr-2"
+                                    dimensions={16}
+                                />{" "}
+                                New Note
                             </CommandItem>
-                            <CommandItem value="New Folder">
-                                <Icon icon={LuFolderPlus} className="mr-2" />{" "}
+                            <CommandItem
+                                value="New Folder"
+                                onSelect={() => HandleFolderCreation()}
+                            >
+                                <Icon
+                                    icon={LuFolderPlus}
+                                    className="mr-2"
+                                    dimensions={16}
+                                />
                                 New Folder
                             </CommandItem>
                         </CommandGroup>
+                        {folders.map((folder) => {
+                            const folderNotes = notes.filter(
+                                (n) => n.parentFolder == folder.id,
+                            );
+                            return (
+                                <CommandGroup heading={folder.title}>
+                                    {folderNotes.map((note) => {
+                                        return (
+                                            <CommandItem
+                                                onSelect={() =>
+                                                    HandleNoteNavigation(note)
+                                                }
+                                                value={`${folder.title} ${
+                                                    note.title
+                                                } ${note.tags.join(" ")}`}
+                                            >
+                                                {note.icon ? (
+                                                    <Emoji
+                                                        code={note.icon}
+                                                        dimensions={16}
+                                                        className="mr-2"
+                                                    />
+                                                ) : (
+                                                    <Icon
+                                                        icon={LuFile}
+                                                        className="mr-2"
+                                                        dimensions={16}
+                                                    />
+                                                )}
+                                                {note.title}
+                                            </CommandItem>
+                                        );
+                                    })}
+                                </CommandGroup>
+                            );
+                        })}
                     </CommandList>
                 </Command>
             </DialogContent>

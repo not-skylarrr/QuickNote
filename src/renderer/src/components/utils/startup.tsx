@@ -1,4 +1,4 @@
-import { GetNoteEditorLocationString } from "@renderer/lib/navigation";
+import { GetNoteNavigationString } from "@renderer/lib/navigation";
 import { useConfig } from "@renderer/providers/ipc/config-provider";
 import { useNotes } from "@renderer/providers/ipc/notes-provider";
 import { useEffect, useState } from "react";
@@ -18,7 +18,7 @@ export const StartupManager = () => {
         const note = notes.find((n) => n.id == recentNoteID);
         if (!note) return;
 
-        navigate(GetNoteEditorLocationString(recentNoteID));
+        navigate(GetNoteNavigationString(recentNoteID));
         SetRedirectOccurred(true);
     };
 
