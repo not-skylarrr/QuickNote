@@ -13,15 +13,18 @@ import {
 import { Emoji } from "@renderer/components/ui/emoji/elem";
 import { EmojiSelector } from "@renderer/components/ui/emoji/selector";
 import Icon from "@renderer/components/ui/icon";
+import { InvokeIpc } from "@renderer/lib/ipc";
 import { GetNoteNavigationString } from "@renderer/lib/navigation";
 import { cn } from "@renderer/lib/utils";
 import { useConfirmation } from "@renderer/providers/dialogs/confirmation-dialog";
 import { useEncryptionDialog } from "@renderer/providers/dialogs/encryption-dialog";
 import { useEditorNavigation } from "@renderer/providers/editor-navigation";
+import { useConfig } from "@renderer/providers/ipc/config-provider";
 import { useFolders } from "@renderer/providers/ipc/folder-provider";
 import { useNotes } from "@renderer/providers/ipc/notes-provider";
 import { createRef, useState } from "react";
 import {
+    LuCode,
     LuFile,
     LuFolder,
     LuHome,
@@ -58,6 +61,7 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
     } = useEditorNavigation();
     const { requestNoteLock, requestNoteUnlock } = useEncryptionDialog();
     const { openDialog } = useConfirmation();
+    const { config } = useConfig();
 
     const { setNodeRef, attributes, listeners } = useDraggable({
         id: `note-${note.id}`,
@@ -186,6 +190,15 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
 
             return toast.success(`Unlocked "${note.title}" successfully`);
         });
+    };
+
+    const HandleCopyNoteID = () => {
+        navigator.clipboard.writeText(note.id);
+        toast.success("Copied Note ID");
+    };
+
+    const HandleNoteFileOpen = () => {
+        InvokeIpc("debug", "openNoteAsFile", note.id);
     };
 
     const HandleNoteDelete = () => {
@@ -383,6 +396,19 @@ const SidebarNoteItem = ({ note }: NoteSidebarItemProps) => {
                 )}
 
                 <ContextMenuSeparator />
+
+                {/* Developer Mode Options */}
+                {config["developer.developerModeEnabled"] && (
+                    <>
+                        <ContextMenuItem onSelect={HandleCopyNoteID}>
+                            <Icon icon={LuCode} /> Copy Note ID
+                        </ContextMenuItem>
+                        <ContextMenuItem onSelect={HandleNoteFileOpen}>
+                            <Icon icon={LuCode} /> Open Note Location
+                        </ContextMenuItem>
+                        <ContextMenuSeparator />
+                    </>
+                )}
 
                 <ContextMenuItem
                     className="text-destructive focus:bg-destructive/10 focus:text-destructive"

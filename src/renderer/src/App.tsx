@@ -1,15 +1,24 @@
-import { Outlet, RouterProvider, createMemoryRouter } from "react-router-dom";
+import { LuChevronLeft, LuHome } from "react-icons/lu";
+import {
+    Outlet,
+    RouterProvider,
+    createMemoryRouter,
+    useNavigate,
+} from "react-router-dom";
 import ApplicationSearch from "./components/command";
-import AppWindow from "./components/core/window";
+import AppWindow, { AppWindowContent } from "./components/core/window";
+import ApplicationShortcuts from "./components/shortcuts/app-shortcuts";
 import AppSidebar from "./components/sidebar";
+import { Button } from "./components/ui/button";
 import { EmojiProvider } from "./components/ui/emoji/elem";
+import Icon from "./components/ui/icon";
+import { Separator } from "./components/ui/separator";
 import { Toaster } from "./components/ui/sonner";
 import { StartupManager } from "./components/utils/startup";
 import ApplicationProviders from "./providers";
 import HomeView from "./views/home";
 import MultiNoteEditor from "./views/multi-note-editor";
 import SettingsView from "./views/settings";
-import ApplicationShortcuts from "./components/shortcuts/app-shortcuts";
 
 const AppLayoutElement = () => {
     return (
@@ -26,6 +35,37 @@ const AppLayoutElement = () => {
     );
 };
 
+const NotFoundElement = () => {
+    const navigate = useNavigate();
+
+    return (
+        <AppWindowContent className="items-center justify-center">
+            <div className="flex w-full max-w-[480px] flex-col">
+                <div className="flex flex-col gap-2">
+                    <h1 className="text-center text-3xl font-semibold">
+                        View Not Found
+                    </h1>
+                    <span className="text-center text-sm text-muted-foreground">
+                        However you got here, congratulations. But there is
+                        nothing here...
+                    </span>
+                </div>
+
+                <Separator className="my-3" />
+
+                <div className="grid w-full grid-cols-2 gap-2">
+                    <Button onClick={() => navigate(-1)}>
+                        <Icon icon={LuChevronLeft} /> Go Back
+                    </Button>
+                    <Button variant="outline" onClick={() => navigate("/")}>
+                        <Icon icon={LuHome} /> Return Home
+                    </Button>
+                </div>
+            </div>
+        </AppWindowContent>
+    );
+};
+
 const router = createMemoryRouter([
     {
         path: "/",
@@ -35,6 +75,11 @@ const router = createMemoryRouter([
             { path: "/editor", element: <MultiNoteEditor /> },
             { path: "/settings", element: <SettingsView /> },
         ],
+    },
+    {
+        path: "*",
+        element: <AppLayoutElement />,
+        children: [{ path: "*", element: <NotFoundElement /> }],
     },
 ]);
 

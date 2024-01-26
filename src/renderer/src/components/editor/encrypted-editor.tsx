@@ -67,7 +67,7 @@ const EncryptedEditor = ({ note }: EncryptedEditorProps) => {
 
         if (!updatedNote) return toast.error("Failed to save note");
 
-        return toast.success("Saved Note Successfully");
+        return toast.success(`Saved "${note.title}" Successfully`);
     };
 
     const HandleNoteUnlock = () => {

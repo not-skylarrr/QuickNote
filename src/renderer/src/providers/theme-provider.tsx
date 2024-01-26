@@ -35,6 +35,7 @@ export function ThemeProvider({
     );
 
     useEffect(() => {
+        localStorage.setItem(storageKey, config["application.theme"]);
         setTheme(config["application.theme"]);
     }, [config]);
 
@@ -42,7 +43,6 @@ export function ThemeProvider({
         const root = window.document.documentElement;
 
         root.classList.remove("light", "dark", "slay");
-
         root.classList.add(theme);
     }, [theme]);
 
