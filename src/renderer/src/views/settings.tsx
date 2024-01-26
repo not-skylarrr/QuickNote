@@ -3,16 +3,12 @@ import {
     SettingsNumberInput,
     SettingsSelectInput,
 } from "@renderer/components/settings/inputs";
-import { Button } from "@renderer/components/ui/button";
-import Icon from "@renderer/components/ui/icon";
 import { Input } from "@renderer/components/ui/input";
 import { Separator } from "@renderer/components/ui/separator";
 import HighlightText from "@renderer/components/utils/hightlight-text";
 import { ObjectKeys } from "@renderer/lib/utils";
 import { useConfig } from "@renderer/providers/ipc/config-provider";
 import { useState } from "react";
-import { LuInfo } from "react-icons/lu";
-import { Link } from "react-router-dom";
 
 export default function SettingsView() {
     const { config, configLabels, updateConfig } = useConfig();

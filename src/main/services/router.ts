@@ -1,5 +1,6 @@
 import { ExportEndpoint } from "../lib/ipc";
 import { ConfigEndpointV2 } from "./config";
+import { DebugEndpoint } from "./debug";
 import { EncryptionEndpoint } from "./encryption";
 import { FolderEndpoint } from "./folders";
 import { NotesEndpointV2 } from "./notes";
@@ -11,6 +12,7 @@ export const IpcRouter = {
     ...ExportEndpoint(WindowEndpoint),
     ...ExportEndpoint(EncryptionEndpoint),
     ...ExportEndpoint(FolderEndpoint),
+    ...ExportEndpoint(DebugEndpoint),
 };
 
 export type IpcRouterMain = typeof IpcRouter;
