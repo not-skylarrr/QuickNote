@@ -9,7 +9,9 @@
 
 import type { IpcRouterMain } from "src/preload/shared_types";
 
-export const InvokeIpc = <
+// (Apparently formatting the return type ternary breaks the typescript compiler lol)
+// prettier-ignore
+export const InvokeIpc = async <
     K extends keyof IpcRouterMain,
     E extends keyof IpcRouterMain[K],
     F extends IpcRouterMain[K][E],
@@ -21,11 +23,10 @@ export const InvokeIpc = <
     group: K,
     endpoint: E,
     ...args: A
-    // @ts-ignore
-): ReturnType<F> => {
+    // @ts-ignore it works as intended but the dumb compiler wants to cry about it because of course it does
+): ReturnType<F> extends Promise<any> ? ReturnType<F> : Promise<ReturnType<F>> => {
     return window.api.ipc.invoke(
         `${String(group)}:${endpoint.toString()}`,
         ...args,
-        // @ts-ignore
-    ) as ReturnType<F>;
+    );
 };

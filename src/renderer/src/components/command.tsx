@@ -51,7 +51,7 @@ const ApplicationSearch = () => {
 
     return (
         <Dialog open={Open} onOpenChange={SetOpen}>
-            <DialogContent className="w-full max-w-[600px] p-0">
+            <DialogContent className="w-full max-w-[600px] bg-transparent p-0">
                 <Command>
                     <CommandInput
                         className="text-base"

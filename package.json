@@ -1,7 +1,7 @@
 {
     "name": "notes-app",
-    "version": "0.2.4",
-    "description": "An Electron application with React and TypeScript",
+    "version": "1.0.0",
+    "description": "An Electron based modern notes app",
     "main": "./out/main/index.js",
     "author": "example.com",
     "homepage": "https://www.electronjs.org",

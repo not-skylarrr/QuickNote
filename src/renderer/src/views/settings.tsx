@@ -3,12 +3,16 @@ import {
     SettingsNumberInput,
     SettingsSelectInput,
 } from "@renderer/components/settings/inputs";
+import { Button } from "@renderer/components/ui/button";
+import Icon from "@renderer/components/ui/icon";
 import { Input } from "@renderer/components/ui/input";
 import { Separator } from "@renderer/components/ui/separator";
 import HighlightText from "@renderer/components/utils/hightlight-text";
 import { ObjectKeys } from "@renderer/lib/utils";
 import { useConfig } from "@renderer/providers/ipc/config-provider";
 import { useState } from "react";
+import { LuInfo } from "react-icons/lu";
+import { Link } from "react-router-dom";
 
 export default function SettingsView() {
     const { config, configLabels, updateConfig } = useConfig();
@@ -33,71 +37,90 @@ export default function SettingsView() {
     };
 
     return (
-        <AppWindowContent className="flex flex-col gap-8">
-            <div className="flex flex-row items-center justify-between">
+        <AppWindowContent className="flex flex-col gap-8 px-0">
+            <div className="flex flex-row items-center justify-between bg-background px-8">
                 <span className="text-3xl font-semibold">
                     Application Settings
                 </span>
-                <Input
-                    value={Query}
-                    onChange={(ev) => SetQuery(ev.target.value)}
-                    className="w-[300px]"
-                    placeholder="Search Settings"
-                />
+                <div className="flex flex-row gap-1">
+                    <Input
+                        value={Query}
+                        onChange={(ev) => SetQuery(ev.target.value)}
+                        className="w-[300px]"
+                        placeholder="Search Settings"
+                    />
+                </div>
             </div>
 
-            {GetSettingGroups().map((configGroup) => {
-                const filteredChildren = ObjectKeys(config).filter(
-                    (s) =>
-                        s.toLowerCase().startsWith(`${configGroup}.`) &&
-                        (s.toLowerCase().includes(Query.toLowerCase()) ||
-                            configLabels[s].title
-                                .toLowerCase()
-                                .includes(Query.toLowerCase()) ||
-                            configLabels[s].description
-                                .toLowerCase()
-                                .includes(Query.toLowerCase())),
-                );
+            <div className="flex flex-col gap-8 overflow-y-auto px-8 pb-10">
+                {GetSettingGroups().map((configGroup) => {
+                    const filteredChildren = ObjectKeys(config).filter(
+                        (s) =>
+                            s.toLowerCase().startsWith(`${configGroup}.`) &&
+                            (s.toLowerCase().includes(Query.toLowerCase()) ||
+                                configLabels[s].title
+                                    .toLowerCase()
+                                    .includes(Query.toLowerCase()) ||
+                                configLabels[s].description
+                                    .toLowerCase()
+                                    .includes(Query.toLowerCase())),
+                    );
 
-                if (filteredChildren.length == 0) return null;
+                    if (filteredChildren.length == 0) return null;
 
-                return (
-                    <div className="flex flex-col gap-2">
-                        <h5 className="text-2xl font-medium capitalize">
-                            {configGroup}
-                        </h5>
+                    return (
+                        <div className="flex flex-col gap-2">
+                            <h5 className="text-2xl font-medium capitalize">
+                                {configGroup}
+                            </h5>
 
-                        <Separator />
+                            <Separator />
 
-                        <div className="mt-2 flex flex-col gap-4">
-                            {filteredChildren.map((setting) => {
-                                const settingLabelData = configLabels[setting];
+                            <div className="mt-2 flex flex-col gap-4">
+                                {filteredChildren.map((setting) => {
+                                    const settingLabelData =
+                                        configLabels[setting];
 
-                                return (
-                                    <div className="flex flex-row items-center justify-between">
-                                        <div className="flex max-w-[500px] flex-col">
-                                            <HighlightText
-                                                className="font-normal"
-                                                query={Query}
-                                            >
-                                                {settingLabelData.title}
-                                            </HighlightText>
-                                            <HighlightText
-                                                className="text-xs text-muted-foreground"
-                                                query={Query}
-                                            >
-                                                {settingLabelData.description}
-                                            </HighlightText>
-                                        </div>
-
-                                        {settingLabelData.inputType ==
-                                            "select" &&
-                                            settingLabelData.inputOptions && (
-                                                <SettingsSelectInput
-                                                    value={config[setting]}
-                                                    options={
-                                                        settingLabelData.inputOptions
+                                    return (
+                                        <div className="flex flex-row items-center justify-between">
+                                            <div className="flex max-w-[500px] flex-col">
+                                                <HighlightText
+                                                    className="font-normal"
+                                                    query={Query}
+                                                >
+                                                    {settingLabelData.title}
+                                                </HighlightText>
+                                                <HighlightText
+                                                    className="text-xs text-muted-foreground"
+                                                    query={Query}
+                                                >
+                                                    {
+                                                        settingLabelData.description
                                                     }
+                                                </HighlightText>
+                                            </div>
+
+                                            {settingLabelData.inputType ==
+                                                "select" &&
+                                                settingLabelData.inputOptions && (
+                                                    <SettingsSelectInput
+                                                        value={config[setting]}
+                                                        options={
+                                                            settingLabelData.inputOptions
+                                                        }
+                                                        onChange={(value) =>
+                                                            HandleSettingValueChange(
+                                                                setting,
+                                                                value,
+                                                            )
+                                                        }
+                                                    />
+                                                )}
+
+                                            {settingLabelData.inputType ==
+                                                "number" && (
+                                                <SettingsNumberInput
+                                                    value={config[setting]}
                                                     onChange={(value) =>
                                                         HandleSettingValueChange(
                                                             setting,
@@ -106,28 +129,16 @@ export default function SettingsView() {
                                                     }
                                                 />
                                             )}
+                                        </div>
+                                    );
+                                })}
 
-                                        {settingLabelData.inputType ==
-                                            "number" && (
-                                            <SettingsNumberInput
-                                                value={config[setting]}
-                                                onChange={(value) =>
-                                                    HandleSettingValueChange(
-                                                        setting,
-                                                        value,
-                                                    )
-                                                }
-                                            />
-                                        )}
-                                    </div>
-                                );
-                            })}
-
-                            {}
+                                {}
+                            </div>
                         </div>
-                    </div>
-                );
-            })}
+                    );
+                })}
+            </div>
         </AppWindowContent>
     );
 }

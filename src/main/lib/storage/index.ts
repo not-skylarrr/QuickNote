@@ -33,6 +33,13 @@ type BulkFile = {
     content: string;
 };
 
+export const GetFilePathFromStorageSpace = (
+    space: StorageSpace,
+    key: string,
+) => {
+    return GetPathFromAppRoot(StorageSpaces[space], key);
+};
+
 export const GetAllFilesFromStorageSpace = (
     space: StorageSpace,
 ): StorageChangeResponse<BulkFile[]> => {

@@ -12,7 +12,8 @@ const ApplicationConfigSchema = z.object({
     "encryption.cacheNotePasswords": z.boolean().optional(),
     "encryption.passwordCacheSeconds": z.number().min(0).optional(),
     "encryption.promptUnlockOnNavigation": z.boolean().optional(),
-    "encryption.promptUnlockOnQuickNavigation": z.boolean().optional()
+    "encryption.promptUnlockOnQuickNavigation": z.boolean().optional(),
+    "developer.developerModeEnabled": z.boolean().optional()
 });
 
 type UserApplicationConfig = z.infer<typeof ApplicationConfigSchema>;
@@ -39,6 +40,7 @@ const BaseApplicationConfig: ApplicationConfig = {
     "encryption.passwordCacheSeconds": 300,
     "encryption.promptUnlockOnNavigation": true,
     "encryption.promptUnlockOnQuickNavigation": true,
+    "developer.developerModeEnabled": false,
 };
 
 const ApplicationConfigLabels: ApplicationConfigLabels = {
@@ -116,6 +118,17 @@ const ApplicationConfigLabels: ApplicationConfigLabels = {
         description:
             "Whether the unlock dialog is immediatley opened upon opening an encrypted note from the command dialog.",
         defaultValue: true,
+        inputType: "select",
+        inputOptions: [
+            { label: "Enabled", value: true },
+            { label: "Disabled", value: false },
+        ],
+    },
+    "developer.developerModeEnabled": {
+        title: "Developer Mode",
+        description:
+            "Get access to additional application information used in debugging",
+        defaultValue: false,
         inputType: "select",
         inputOptions: [
             { label: "Enabled", value: true },
